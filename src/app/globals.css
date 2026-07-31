@@ -76,7 +76,7 @@
 @theme inline {
   --color-background: var(--color-background);
   --color-foreground: var(--color-on-background);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-lato);
   --font-mono: var(--font-geist-mono);
 
   --color-primary: var(--color-primary);
@@ -151,13 +151,20 @@
 body {
   background: var(--color-background);
   color: var(--color-on-background);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-lato), Arial, Helvetica, sans-serif;
 }
 
 /* Material Symbols Outlined — loaded via <link> in layout.tsx. Default to
    unfilled/regular weight; components opt into FILL via inline style where
    the source design calls for it (active nav, decorative icons). */
 .material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
   font-variation-settings:
     "FILL" 0,
     "wght" 400,
