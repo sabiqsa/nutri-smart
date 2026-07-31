@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — ported directly from the "Clinical Precision" design
+ * system (Stitch project stitch.withgoogle.com/projects/6239722517836903181,
+ * "Nutri Smart Distribution System"). Material Design 3 color roles, values
+ * copied verbatim from that project's designMd — don't hand-tune these,
+ * re-pull from the source project if they need to change.
+ */
+:root {
+  color-scheme: light;
+
+  --color-primary: #00478d;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #005eb8;
+  --color-on-primary-container: #c8daff;
+  --color-inverse-primary: #a9c7ff;
+  --color-primary-fixed: #d6e3ff;
+  --color-primary-fixed-dim: #a9c7ff;
+  --color-on-primary-fixed: #001b3d;
+  --color-on-primary-fixed-variant: #00468c;
+
+  --color-secondary: #006970;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #7af1fc;
+  --color-on-secondary-container: #006e75;
+  --color-secondary-fixed: #7df4ff;
+  --color-secondary-fixed-dim: #5dd8e2;
+  --color-on-secondary-fixed: #002022;
+  --color-on-secondary-fixed-variant: #004f54;
+
+  --color-tertiary: #604200;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #7e5800;
+  --color-on-tertiary-container: #ffd38a;
+  --color-tertiary-fixed: #ffdeaa;
+  --color-tertiary-fixed-dim: #ffba2c;
+  --color-on-tertiary-fixed: #271900;
+  --color-on-tertiary-fixed-variant: #5f4100;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-background: #f7f9fb;
+  --color-on-background: #191c1e;
+  --color-surface: #f7f9fb;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #424752;
+  --color-surface-variant: #e0e3e5;
+  --color-surface-dim: #d8dadc;
+  --color-surface-bright: #f7f9fb;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container: #eceef0;
+  --color-surface-container-high: #e6e8ea;
+  --color-surface-container-highest: #e0e3e5;
+  --color-outline: #727783;
+  --color-outline-variant: #c2c6d4;
+  --color-inverse-surface: #2d3133;
+  --color-inverse-on-surface: #eff1f3;
+  --color-surface-tint: #005db6;
+
+  /* Back-compat aliases used by earlier (session 3) components */
+  --color-primary-light: var(--color-primary-fixed);
+  --color-primary-dark: var(--color-primary);
+  --color-status-pending: var(--color-outline);
+  --color-status-ready: var(--color-primary);
+  --color-status-delivered: var(--color-secondary);
+  --color-status-mismatch: var(--color-error);
+
+  --radius-card: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-on-background);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-primary-container: var(--color-primary-container);
+  --color-on-primary-container: var(--color-on-primary-container);
+  --color-inverse-primary: var(--color-inverse-primary);
+  --color-primary-fixed: var(--color-primary-fixed);
+  --color-primary-fixed-dim: var(--color-primary-fixed-dim);
+  --color-on-primary-fixed: var(--color-on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--color-on-primary-fixed-variant);
+
+  --color-secondary: var(--color-secondary);
+  --color-on-secondary: var(--color-on-secondary);
+  --color-secondary-container: var(--color-secondary-container);
+  --color-on-secondary-container: var(--color-on-secondary-container);
+  --color-secondary-fixed: var(--color-secondary-fixed);
+  --color-secondary-fixed-dim: var(--color-secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--color-on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--color-on-secondary-fixed-variant);
+
+  --color-tertiary: var(--color-tertiary);
+  --color-on-tertiary: var(--color-on-tertiary);
+  --color-tertiary-container: var(--color-tertiary-container);
+  --color-on-tertiary-container: var(--color-on-tertiary-container);
+  --color-tertiary-fixed: var(--color-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--color-tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--color-on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--color-on-tertiary-fixed-variant);
+
+  --color-error: var(--color-error);
+  --color-on-error: var(--color-on-error);
+  --color-error-container: var(--color-error-container);
+  --color-on-error-container: var(--color-on-error-container);
+
+  --color-on-background: var(--color-on-background);
+  --color-surface: var(--color-surface);
+  --color-on-surface: var(--color-on-surface);
+  --color-on-surface-variant: var(--color-on-surface-variant);
+  --color-surface-variant: var(--color-surface-variant);
+  --color-surface-dim: var(--color-surface-dim);
+  --color-surface-bright: var(--color-surface-bright);
+  --color-surface-container-lowest: var(--color-surface-container-lowest);
+  --color-surface-container-low: var(--color-surface-container-low);
+  --color-surface-container: var(--color-surface-container);
+  --color-surface-container-high: var(--color-surface-container-high);
+  --color-surface-container-highest: var(--color-surface-container-highest);
+  --color-outline: var(--color-outline);
+  --color-outline-variant: var(--color-outline-variant);
+  --color-inverse-surface: var(--color-inverse-surface);
+  --color-inverse-on-surface: var(--color-inverse-on-surface);
+  --color-surface-tint: var(--color-surface-tint);
+
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-status-pending: var(--color-status-pending);
+  --color-status-ready: var(--color-status-ready);
+  --color-status-delivered: var(--color-status-delivered);
+  --color-status-mismatch: var(--color-status-mismatch);
+
+  --radius-card: var(--radius-card);
+}
+
+/*
+ * Light mode only for now — every screen is designed against this specific
+ * surface palette. This app doesn't opt into prefers-color-scheme yet
+ * (see git history: an earlier auto-dark-mode attempt caused contrast
+ * failures because only `--background` was swapped, not the full surface
+ * scale).
+ */
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+/* Material Symbols Outlined — loaded via <link> in layout.tsx. Default to
+   unfilled/regular weight; components opt into FILL via inline style where
+   the source design calls for it (active nav, decorative icons). */
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  font-size: 24px;
+  line-height: 1;
+  vertical-align: middle;
+}
