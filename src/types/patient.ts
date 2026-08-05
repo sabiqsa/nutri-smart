@@ -1,4 +1,7 @@
-export type FoodForm = "CAIR" | "SARING" | "BUBUR" | "TIM" | "BIASA";
+export type AllergyEntry = {
+  type: string;
+  detail: string;
+};
 
 export type Patient = {
   id: string;
@@ -8,12 +11,14 @@ export type Patient = {
   patient_name: string | null;
   date_of_birth: string | null;
   diet_type: string | null;
-  special_diet: string | null;
+  special_diet: string[] | null;
   food_form: string | null;
   food_form_detail: string | null;
-  allergies: string | null;
-  food_restrictions: string | null;
+  allergies: AllergyEntry[];
+  food_restrictions: string[] | null;
   notes: string | null;
+  is_special_request: boolean;
+  special_request_note: string | null;
   created_at: string;
   updated_at: string;
 };

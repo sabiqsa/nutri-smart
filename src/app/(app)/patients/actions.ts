@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { CUSTOM_LIQUID_OPTION } from "@/constants/patient-options";
 import { canEditPatients, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
+import type { AllergyEntry } from "@/types/patient";
 
 function emptyToNull(value: FormDataEntryValue | null) {
   const str = String(value ?? "").trim();
@@ -12,6 +14,18 @@ function emptyToNull(value: FormDataEntryValue | null) {
 }
 
 function patientFromFormData(formData: FormData) {
+  const foodFormDetailRaw = String(formData.get("food_form_detail") ?? "").trim();
+  const foodFormDetail =
+    foodFormDetailRaw === CUSTOM_LIQUID_OPTION
+      ? emptyToNull(formData.get("food_form_detail_custom"))
+      : emptyToNull(formData.get("food_form_detail"));
+
+  const allergies: AllergyEntry[] = formData.getAll("allergies").map((raw) => {
+    const type = String(raw);
+    const detail = String(formData.get(`allergy_detail_${type}`) ?? "").trim();
+    return { type, detail };
+  });
+
   return {
     room: String(formData.get("room") ?? "").trim(),
     bed: emptyToNull(formData.get("bed")),
@@ -19,11 +33,13 @@ function patientFromFormData(formData: FormData) {
     patient_name: emptyToNull(formData.get("patient_name")),
     date_of_birth: emptyToNull(formData.get("date_of_birth")),
     diet_type: emptyToNull(formData.get("diet_type")),
-    special_diet: emptyToNull(formData.get("special_diet")),
+    special_diet: formData.getAll("special_diet").map(String),
     food_form: emptyToNull(formData.get("food_form")),
-    food_form_detail: emptyToNull(formData.get("food_form_detail")),
-    allergies: emptyToNull(formData.get("allergies")),
-    food_restrictions: emptyToNull(formData.get("food_restrictions")),
+    food_form_detail: foodFormDetail,
+    allergies,
+    food_restrictions: formData.getAll("food_restrictions").map(String),
+    is_special_request: formData.get("is_special_request") === "true",
+    special_request_note: emptyToNull(formData.get("special_request_note")),
     notes: emptyToNull(formData.get("notes")),
   };
 }
@@ -37,6 +53,9 @@ export async function createPatient(_prevState: string | void | null, formData: 
   const values = patientFromFormData(formData);
   if (!values.room || !values.medical_record_number) {
     return "Ruangan dan No. RM wajib diisi.";
+  }
+  if (values.is_special_request && !values.special_request_note) {
+    return "Isi keterangan Permintaan Khusus.";
   }
 
   const supabase = await createClient();
@@ -58,6 +77,9 @@ export async function updatePatient(id: string, _prevState: string | void | null
   const values = patientFromFormData(formData);
   if (!values.room || !values.medical_record_number) {
     return "Ruangan dan No. RM wajib diisi.";
+  }
+  if (values.is_special_request && !values.special_request_note) {
+    return "Isi keterangan Permintaan Khusus.";
   }
 
   const supabase = await createClient();

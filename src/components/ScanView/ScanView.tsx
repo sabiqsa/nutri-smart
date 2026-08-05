@@ -163,7 +163,9 @@ export function ScanView() {
               <div className="flex items-start justify-between border-b border-surface-container-highest pb-3">
                 <div className="text-sm font-medium text-on-surface-variant">Diet Khusus</div>
                 <div className="inline-flex rounded-full bg-tertiary-fixed px-3 py-1 text-sm font-bold text-on-tertiary-fixed-variant">
-                  {state.patient.special_diet ?? state.patient.diet_type ?? "-"}
+                  {state.patient.special_diet && state.patient.special_diet.length > 0
+                    ? state.patient.special_diet.join(", ")
+                    : (state.patient.diet_type ?? "-")}
                 </div>
               </div>
               <div className="flex items-start justify-between">

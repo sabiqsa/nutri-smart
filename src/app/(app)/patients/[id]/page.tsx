@@ -65,15 +65,40 @@ export default async function PatientDetailPage({
           </div>
         ) : null}
 
+        {patient.is_special_request ? (
+          <div className="rounded-card border border-error bg-error-container/30 p-3">
+            <div className="text-xs font-semibold text-error uppercase">Permintaan Khusus</div>
+            <div className="font-medium">{patient.special_request_note}</div>
+          </div>
+        ) : null}
+
         <Field label="Ruangan / Bed" value={`${patient.room} / ${patient.bed ?? "-"}`} />
         <Field label="No. RM" value={patient.medical_record_number} />
         <Field label="Tanggal Lahir" value={patient.date_of_birth ?? "-"} />
-        <Field label="Diet" value={patient.diet_type ?? "-"} />
-        <Field label="Diet Khusus" value={patient.special_diet ?? "-"} />
+        <Field label="Diet Utama" value={patient.diet_type ?? "-"} />
+        <Field
+          label="Diet Khusus"
+          value={patient.special_diet && patient.special_diet.length > 0 ? patient.special_diet.join(", ") : "-"}
+        />
         <Field label="Bentuk Makanan" value={patient.food_form ?? "-"} />
         <Field label="Detail Bentuk Makanan" value={patient.food_form_detail ?? "-"} />
-        <Field label="Alergi" value={patient.allergies ?? "-"} highlight={!!patient.allergies} />
-        <Field label="Pantangan Makanan" value={patient.food_restrictions ?? "-"} />
+        <Field
+          label="Alergi"
+          value={
+            patient.allergies.length > 0
+              ? patient.allergies.map((a) => (a.detail ? `${a.type} (${a.detail})` : a.type)).join(", ")
+              : "-"
+          }
+          highlight={patient.allergies.length > 0}
+        />
+        <Field
+          label="Pantangan Makanan"
+          value={
+            patient.food_restrictions && patient.food_restrictions.length > 0
+              ? patient.food_restrictions.join(", ")
+              : "-"
+          }
+        />
         <Field label="Keterangan" value={patient.notes ?? "-"} />
       </div>
     </div>

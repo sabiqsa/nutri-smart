@@ -28,7 +28,7 @@ export default async function DashboardPage() {
       foodFormCounts[patient.food_form] = (foodFormCounts[patient.food_form] ?? 0) + 1;
     }
 
-    if (patient.allergies || delivery?.mismatch) {
+    if (patient.allergies.length > 0 || delivery?.mismatch) {
       alerts.push(patient);
     }
   }
@@ -114,9 +114,12 @@ export default async function DashboardPage() {
                 <div className="flex-1">
                   <h3 className="text-sm font-medium">{patient.patient_name ?? patient.medical_record_number}</h3>
                   <p className="text-sm">
-                    {patient.allergies ? (
+                    {patient.allergies.length > 0 ? (
                       <>
-                        Alergi: <span className="font-bold text-error">{patient.allergies}</span>
+                        Alergi:{" "}
+                        <span className="font-bold text-error">
+                          {patient.allergies.map((a) => a.type).join(", ")}
+                        </span>
                       </>
                     ) : (
                       "Diet mismatch terdeteksi"

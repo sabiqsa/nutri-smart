@@ -151,15 +151,17 @@ function PatientCard({ patient }: { patient: PatientWithDelivery }) {
               <Icon name="warning" size={12} />
               High Alert
             </span>
-          ) : patient.allergies ? (
+          ) : patient.allergies.length > 0 ? (
             <span className="shrink-0 rounded-full bg-error-container px-2 py-0.5 text-[10px] font-bold tracking-wider text-on-error-container uppercase">
-              Allergy: {patient.allergies}
+              Allergy: {patient.allergies.map((a) => a.type).join(", ")}
             </span>
           ) : null}
         </div>
         <p className="mb-2 text-sm text-on-surface-variant">{patient.diet_type ?? "-"}</p>
-        {highAlert && patient.allergies ? (
-          <p className="mb-2 text-xs font-bold text-error italic">Allergy: {patient.allergies}</p>
+        {highAlert && patient.allergies.length > 0 ? (
+          <p className="mb-2 text-xs font-bold text-error italic">
+            Allergy: {patient.allergies.map((a) => a.type).join(", ")}
+          </p>
         ) : null}
         <span className={cn("inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium", status.className)}>
           <Icon name={status.icon} size={14} />
