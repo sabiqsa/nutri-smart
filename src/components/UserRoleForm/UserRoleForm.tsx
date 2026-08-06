@@ -26,9 +26,11 @@ export function UserRoleForm({
         className="rounded-card border border-outline-variant px-2 py-1 text-sm"
       >
         <option value="">(belum di-assign)</option>
+        <option value="perawat">Perawat</option>
         <option value="ahli_gizi">Ahli Gizi</option>
+        <option value="produksi">Bagian Produksi</option>
+        <option value="distribusi">Bagian Distribusi</option>
         <option value="admin">Admin</option>
-        <option value="ppm">PPM</option>
       </select>
       <button
         type="submit"

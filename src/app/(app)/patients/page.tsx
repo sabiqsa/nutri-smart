@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { PatientListView } from "@/components/PatientListView/PatientListView";
-import { canEditPatients, getCurrentProfile } from "@/libs/supabase/get-profile";
+import { canEditPatients, canScanDistribution, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
 
@@ -18,7 +18,7 @@ export default async function PatientsPage() {
 
   return (
     <div className="p-4">
-      {canEditPatients(profile) ? (
+      {canEditPatients(profile?.role ?? null) ? (
         <div className="mb-3 flex justify-end">
           <Link
             href="/patients/new"
@@ -29,7 +29,7 @@ export default async function PatientsPage() {
         </div>
       ) : null}
 
-      <PatientListView patients={patients ?? []} />
+      <PatientListView patients={patients ?? []} canScan={canScanDistribution(profile?.role ?? null)} />
     </div>
   );
 }

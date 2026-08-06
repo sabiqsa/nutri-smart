@@ -15,7 +15,7 @@ export default async function EditPatientPage({
 }) {
   const { id } = await params;
   const profile = await getCurrentProfile();
-  if (!canEditPatients(profile)) {
+  if (!canEditPatients(profile?.role ?? null)) {
     redirect("/login");
   }
 

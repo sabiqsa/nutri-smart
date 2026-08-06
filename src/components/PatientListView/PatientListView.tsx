@@ -21,7 +21,13 @@ const STATUS_CONFIG = {
   },
 } as const;
 
-export function PatientListView({ patients }: { patients: PatientWithDelivery[] }) {
+export function PatientListView({
+  patients,
+  canScan,
+}: {
+  patients: PatientWithDelivery[];
+  canScan: boolean;
+}) {
   const [query, setQuery] = useState("");
   const [ward, setWard] = useState<string | null>(null);
 
@@ -100,22 +106,24 @@ export function PatientListView({ patients }: { patients: PatientWithDelivery[] 
       ) : (
         <div className="space-y-3">
           {filtered.map((patient) => (
-            <PatientCard key={patient.id} patient={patient} />
+            <PatientCard key={patient.id} patient={patient} canScan={canScan} />
           ))}
         </div>
       )}
 
-      <Link
-        href="/scan"
-        className="fixed right-6 bottom-24 z-30 flex size-16 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xl transition-transform active:scale-95"
-      >
-        <Icon name="qr_code_scanner" size={32} />
-      </Link>
+      {canScan ? (
+        <Link
+          href="/scan"
+          className="fixed right-6 bottom-24 z-30 flex size-16 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xl transition-transform active:scale-95"
+        >
+          <Icon name="qr_code_scanner" size={32} />
+        </Link>
+      ) : null}
     </div>
   );
 }
 
-function PatientCard({ patient }: { patient: PatientWithDelivery }) {
+function PatientCard({ patient, canScan }: { patient: PatientWithDelivery; canScan: boolean }) {
   const status = STATUS_CONFIG[patient.meal_deliveries[0]?.status ?? "pending"];
   const highAlert = !!patient.meal_deliveries[0]?.mismatch;
 
@@ -169,14 +177,16 @@ function PatientCard({ patient }: { patient: PatientWithDelivery }) {
         </span>
       </div>
 
-      <span
-        className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-full border",
-          highAlert ? "border-error text-error" : "border-outline-variant text-primary",
-        )}
-      >
-        <Icon name="qr_code_scanner" size={20} />
-      </span>
+      {canScan ? (
+        <span
+          className={cn(
+            "flex size-10 shrink-0 items-center justify-center rounded-full border",
+            highAlert ? "border-error text-error" : "border-outline-variant text-primary",
+          )}
+        >
+          <Icon name="qr_code_scanner" size={20} />
+        </span>
+      ) : null}
     </Link>
   );
 }

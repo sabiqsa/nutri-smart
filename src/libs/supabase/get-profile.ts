@@ -1,6 +1,21 @@
 import { createClient } from "@/libs/supabase/server";
 import type { Profile } from "@/types/profile";
 
+// Re-exported for convenience so existing call sites don't need two import
+// lines — but these are pure functions with no server dependency, defined
+// in utils/roles.ts (also imported directly by client components like
+// AppShell's nav, which can't pull in this server-only file).
+export {
+  canDeletePatients,
+  canEditPatients,
+  canPrintLabel,
+  canScanDistribution,
+  canViewDietHistory,
+  canViewMetrics,
+  defaultRouteFor,
+  isAdmin,
+} from "@/utils/roles";
+
 export async function getCurrentProfile(): Promise<Profile | null> {
   const supabase = await createClient();
   const {
@@ -18,12 +33,4 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .single<Profile>();
 
   return profile ?? null;
-}
-
-export function canEditPatients(profile: Profile | null): boolean {
-  return profile?.role === "ahli_gizi" || profile?.role === "admin";
-}
-
-export function isAdmin(profile: Profile | null): boolean {
-  return profile?.role === "admin";
 }

@@ -2,13 +2,21 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { updateSession } from "@/libs/supabase/middleware";
 
+const PUBLIC_PATHS = ["/login"];
+
 export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  // Login is optional — only Ahli Gizi/Admin need an account (to edit diet
-  // data). Everyone else (distribution staff / PPM) uses the app as a guest,
-  // read-only. So there is no "not logged in -> /login" redirect here.
+  const isPublicPath = PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/auth/");
+
+  // Phase 2 (RBAC): every screen requires an account now — no more guest
+  // access (retired the sesi-4 guest-first model).
+  if (!user && !isPublicPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
   if (user && pathname === "/login") {
     const url = request.nextUrl.clone();
@@ -16,7 +24,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (pathname === "/") {
+  if (user && pathname === "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

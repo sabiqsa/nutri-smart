@@ -8,7 +8,7 @@ import { createPatient } from "../actions";
 
 export default async function NewPatientPage() {
   const profile = await getCurrentProfile();
-  if (!canEditPatients(profile)) {
+  if (!canEditPatients(profile?.role ?? null)) {
     redirect("/login");
   }
 

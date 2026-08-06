@@ -4,19 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Icon } from "@/components/Icon/Icon";
+import type { UserRole } from "@/types/profile";
 import { cn } from "@/utils/cn";
 
 import styles from "./AppShell.module.css";
-import { NAV_ITEMS } from "./nav-items";
+import { getNavItems } from "./nav-items";
 
 type AppShellProps = {
   children: React.ReactNode;
   fullName: string | null;
-  role: string | null;
+  role: UserRole;
+};
+
+const ROLE_LABEL: Record<UserRole, string> = {
+  perawat: "Perawat",
+  ahli_gizi: "Ahli Gizi",
+  produksi: "Bagian Produksi",
+  distribusi: "Bagian Distribusi",
+  admin: "Admin",
 };
 
 export function AppShell({ children, fullName, role }: AppShellProps) {
   const pathname = usePathname();
+  const navItems = getNavItems(role);
 
   return (
     <div className="flex flex-1 flex-col md:flex-row">
@@ -32,7 +42,7 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
           </span>
           <span className="font-bold text-primary">NutriSmart</span>
         </div>
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavLink key={item.href} item={item} active={pathname.startsWith(item.href)} />
         ))}
       </aside>
@@ -45,7 +55,10 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
             </span>
             <div className="flex flex-col">
               <span className="font-bold text-primary">NutriSmart</span>
-              <span className="text-xs text-on-surface-variant">{fullName ?? "Guest"}</span>
+              <span className="text-xs text-on-surface-variant">
+                {fullName ?? ROLE_LABEL[role]}
+                <span className="ml-2 text-[10px] text-on-surface-variant uppercase">{ROLE_LABEL[role]}</span>
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -55,24 +68,16 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
             >
               <Icon name="notifications" />
             </button>
-            {role ? (
-              <div className="flex items-center gap-3 text-sm">
-                {role === "admin" ? (
-                  <Link href="/admin/users" className="font-medium text-on-surface-variant hover:text-on-surface">
-                    Kelola User
-                  </Link>
-                ) : null}
-                <form action="/auth/logout" method="post">
-                  <button type="submit" className="font-medium text-on-surface-variant hover:text-on-surface">
-                    Logout
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <Link href="/login" className="text-sm font-medium text-primary">
-                Login
+            {role === "admin" ? (
+              <Link href="/admin/users" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">
+                Kelola User
               </Link>
-            )}
+            ) : null}
+            <form action="/auth/logout" method="post">
+              <button type="submit" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">
+                Logout
+              </button>
+            </form>
           </div>
         </header>
 
@@ -85,7 +90,7 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
           "fixed inset-x-0 bottom-0 z-50 flex items-center justify-around rounded-t-xl border-t border-outline-variant bg-surface px-2 py-2 shadow-lg md:hidden",
         )}
       >
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavLink key={item.href} item={item} active={pathname.startsWith(item.href)} compact />
         ))}
       </nav>
@@ -98,7 +103,7 @@ function NavLink({
   active,
   compact,
 }: {
-  item: (typeof NAV_ITEMS)[number];
+  item: ReturnType<typeof getNavItems>[number];
   active: boolean;
   compact?: boolean;
 }) {

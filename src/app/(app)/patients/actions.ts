@@ -46,7 +46,7 @@ function patientFromFormData(formData: FormData) {
 
 export async function createPatient(_prevState: string | void | null, formData: FormData) {
   const profile = await getCurrentProfile();
-  if (!canEditPatients(profile)) {
+  if (!canEditPatients(profile?.role ?? null)) {
     return "Butuh login Ahli Gizi/Admin.";
   }
 
@@ -70,7 +70,7 @@ export async function createPatient(_prevState: string | void | null, formData: 
 
 export async function updatePatient(id: string, _prevState: string | void | null, formData: FormData) {
   const profile = await getCurrentProfile();
-  if (!canEditPatients(profile)) {
+  if (!canEditPatients(profile?.role ?? null)) {
     return "Butuh login Ahli Gizi/Admin.";
   }
 

@@ -10,7 +10,7 @@ import { updateProfileRole } from "./actions";
 
 export default async function AdminUsersPage() {
   const profile = await getCurrentProfile();
-  if (!isAdmin(profile)) {
+  if (!isAdmin(profile?.role ?? null)) {
     redirect("/login");
   }
 

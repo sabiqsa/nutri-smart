@@ -7,12 +7,12 @@ import { createClient } from "@/libs/supabase/server";
 
 export async function updateProfileRole(id: string, _prevState: string | void | null, formData: FormData) {
   const profile = await getCurrentProfile();
-  if (!isAdmin(profile)) {
+  if (!isAdmin(profile?.role ?? null)) {
     return "Butuh login Admin.";
   }
 
   const role = String(formData.get("role") ?? "");
-  const validRoles = ["admin", "ahli_gizi", "ppm"];
+  const validRoles = ["perawat", "ahli_gizi", "produksi", "distribusi", "admin"];
   const nextRole = validRoles.includes(role) ? role : null;
 
   const supabase = await createClient();

@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 
 import { Badge } from "@/components/Badge/Badge";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
-import { canEditPatients, getCurrentProfile } from "@/libs/supabase/get-profile";
+import { canEditPatients, canViewDietHistory, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
 import { buildPatientQrValue } from "@/utils/patient-qr";
@@ -35,10 +35,20 @@ export default async function PatientDetailPage({
   }
 
   const status = patient.meal_deliveries[0]?.status ?? "pending";
-  const canEdit = canEditPatients(profile);
+  const canEdit = canEditPatients(profile?.role ?? null);
+  const canSeeHistory = canViewDietHistory(profile?.role ?? null);
   const qrDataUrl = canEdit
     ? await QRCode.toDataURL(buildPatientQrValue(patient.medical_record_number), { width: 200 })
     : null;
+
+  const { data: history } = canSeeHistory
+    ? await supabase
+        .from("diet_history")
+        .select("id, summary, changed_by_role, created_at")
+        .eq("patient_id", id)
+        .order("created_at", { ascending: false })
+        .limit(10)
+    : { data: null };
 
   return (
     <div>
@@ -100,6 +110,27 @@ export default async function PatientDetailPage({
           }
         />
         <Field label="Keterangan" value={patient.notes ?? "-"} />
+
+        {canSeeHistory ? (
+          <section>
+            <h2 className="mb-2 text-sm font-semibold text-on-surface-variant">Riwayat Diet</h2>
+            {history && history.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                {history.map((entry) => (
+                  <div key={entry.id} className="rounded-card border border-outline-variant bg-surface-container-lowest p-3 text-sm">
+                    <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                      <span className="uppercase">{entry.changed_by_role ?? "-"}</span>
+                      <span>{new Date(entry.created_at).toLocaleString("id-ID")}</span>
+                    </div>
+                    <div className="mt-1">{entry.summary}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-on-surface-variant">Belum ada riwayat perubahan.</p>
+            )}
+          </section>
+        ) : null}
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Icon } from "@/components/Icon/Icon";
+import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
 import { cn } from "@/utils/cn";
@@ -8,6 +10,12 @@ import { cn } from "@/utils/cn";
 const FOOD_FORM_LABELS = ["BIASA", "TIM", "BUBUR", "SARING", "CAIR"] as const;
 
 export default async function DashboardPage() {
+  const profile = await getCurrentProfile();
+  if (!canViewMetrics(profile?.role ?? null)) {
+    // Perawat: no access to rekap-porsi metrics per spec.
+    redirect("/patients");
+  }
+
   const supabase = await createClient();
 
   const { data: patients } = await supabase

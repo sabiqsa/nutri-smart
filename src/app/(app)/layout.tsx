@@ -1,25 +1,18 @@
+import { redirect } from "next/navigation";
+
 import { AppShell } from "@/components/AppShell/AppShell";
-import { createClient } from "@/libs/supabase/server";
 import { getCurrentProfile } from "@/libs/supabase/get-profile";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    // Guest (distribution staff / PPM) — no account needed, read-only access.
-    return (
-      <AppShell fullName={null} role={null}>
-        {children}
-      </AppShell>
-    );
+  // Phase 2 (RBAC): proxy.ts already redirects unauthenticated requests to
+  // /login before they reach this layout — this is a defensive fallback,
+  // not the primary guard.
+  const profile = await getCurrentProfile();
+  if (!profile) {
+    redirect("/login");
   }
 
-  const profile = await getCurrentProfile();
-
-  if (!profile?.role) {
+  if (!profile.role) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
         <h1 className="text-lg font-semibold">Menunggu akses</h1>

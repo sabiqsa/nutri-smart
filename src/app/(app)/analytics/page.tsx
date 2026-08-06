@@ -1,10 +1,18 @@
+import { redirect } from "next/navigation";
+
 import { Icon } from "@/components/Icon/Icon";
+import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
 
 const PAPER_SHEETS_PER_DELIVERY = 1;
 
 export default async function AnalyticsPage() {
+  const profile = await getCurrentProfile();
+  if (!canViewMetrics(profile?.role ?? null)) {
+    redirect("/patients");
+  }
+
   const supabase = await createClient();
 
   const { data: patients } = await supabase
