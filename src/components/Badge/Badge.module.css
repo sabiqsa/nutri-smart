@@ -28,3 +28,8 @@
   background-color: var(--color-error-container);
   color: var(--color-on-error-container);
 }
+
+.badge.not_distributed {
+  background-color: var(--color-outline-variant);
+  color: var(--color-on-surface);
+}

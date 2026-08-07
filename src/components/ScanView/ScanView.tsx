@@ -4,19 +4,23 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useState } from "react";
 
 import { Icon } from "@/components/Icon/Icon";
+import { ROOM_OPTIONS } from "@/constants/patient-options";
 import { createClient } from "@/libs/supabase/client";
 import type { PatientWithDelivery } from "@/types/patient";
 import { cn } from "@/utils/cn";
 import { parsePatientQrValue } from "@/utils/patient-qr";
 
 type ScanState =
+  | { phase: "select_room" }
   | { phase: "scanning" }
   | { phase: "not_found" }
+  | { phase: "room_mismatch"; patient: PatientWithDelivery }
   | { phase: "matched"; patient: PatientWithDelivery }
   | { phase: "confirmed"; patient: PatientWithDelivery };
 
 export function ScanView() {
-  const [state, setState] = useState<ScanState>({ phase: "scanning" });
+  const [targetRoom, setTargetRoom] = useState<string | null>(null);
+  const [state, setState] = useState<ScanState>({ phase: "select_room" });
   const [confirming, setConfirming] = useState(false);
 
   async function handleScan(codes: { rawValue: string }[]) {
@@ -38,7 +42,17 @@ export function ScanView() {
       .eq("medical_record_number", rm)
       .single<PatientWithDelivery>();
 
-    setState(patient ? { phase: "matched", patient } : { phase: "not_found" });
+    if (!patient) {
+      setState({ phase: "not_found" });
+      return;
+    }
+
+    if (patient.room !== targetRoom) {
+      setState({ phase: "room_mismatch", patient });
+      return;
+    }
+
+    setState({ phase: "matched", patient });
   }
 
   async function handleConfirmDelivery() {
@@ -60,14 +74,57 @@ export function ScanView() {
     setState({ phase: "confirmed", patient: state.patient });
   }
 
-  function reset() {
+  function rescan() {
     setState({ phase: "scanning" });
+  }
+
+  function changeRoom() {
+    setTargetRoom(null);
+    setState({ phase: "select_room" });
+  }
+
+  if (state.phase === "select_room") {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+        <Icon name="meeting_room" size={48} className="text-primary" />
+        <h2 className="text-lg font-semibold">Pilih Ruangan Tujuan</h2>
+        <p className="max-w-xs text-center text-sm text-on-surface-variant">
+          QR yang discan akan divalidasi terhadap ruangan ini — cegah makanan salah kamar.
+        </p>
+        <select
+          onChange={(e) => {
+            setTargetRoom(e.target.value);
+            setState({ phase: "scanning" });
+          }}
+          defaultValue=""
+          className="rounded-card w-full max-w-xs border border-outline-variant bg-surface-container-lowest px-3 py-3 text-sm"
+        >
+          <option value="" disabled>
+            Pilih ruangan...
+          </option>
+          {ROOM_OPTIONS.map((room) => (
+            <option key={room} value={room}>
+              {room}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
   }
 
   const sheetOpen = state.phase !== "scanning";
 
   return (
     <div className="relative flex-1 overflow-hidden bg-black">
+      <div className="absolute inset-x-0 top-0 z-40 flex items-center justify-between bg-black/50 px-4 py-2 backdrop-blur-sm">
+        <span className="text-sm text-white">
+          Tujuan: <strong>{targetRoom}</strong>
+        </span>
+        <button type="button" onClick={changeRoom} className="text-xs text-secondary underline">
+          Ganti Ruangan
+        </button>
+      </div>
+
       <Scanner
         onScan={handleScan}
         formats={["qr_code"]}
@@ -117,7 +174,36 @@ export function ScanView() {
             </p>
             <button
               type="button"
-              onClick={reset}
+              onClick={rescan}
+              className="h-12 w-full rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98]"
+            >
+              Scan Lagi
+            </button>
+            <div className="h-8" />
+          </div>
+        ) : null}
+
+        {state.phase === "room_mismatch" ? (
+          <div className="p-6">
+            <div className="mb-6 flex items-center gap-3 rounded-xl border-2 border-error bg-error-container p-4">
+              <span className="flex size-10 items-center justify-center rounded-full bg-error text-on-error">
+                <Icon name="report" filled />
+              </span>
+              <div>
+                <h3 className="text-xs font-semibold tracking-wider text-on-error-container uppercase">
+                  Peringatan
+                </h3>
+                <p className="text-lg font-bold text-on-error-container">Makanan Salah Kamar!</p>
+              </div>
+            </div>
+            <p className="mb-2 text-sm text-on-surface-variant">
+              Label ini punya <strong>{state.patient.patient_name ?? state.patient.medical_record_number}</strong> —
+              ruangan <strong>{state.patient.room}</strong>, bukan tujuan saat ini ({targetRoom}).
+            </p>
+            <p className="mb-6 text-sm font-semibold text-error">Status distribusi TIDAK diupdate.</p>
+            <button
+              type="button"
+              onClick={rescan}
               className="h-12 w-full rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98]"
             >
               Scan Lagi
@@ -137,7 +223,7 @@ export function ScanView() {
             </p>
             <button
               type="button"
-              onClick={reset}
+              onClick={rescan}
               className="h-12 w-full rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98]"
             >
               Scan Lagi
@@ -188,7 +274,7 @@ export function ScanView() {
               </button>
               <button
                 type="button"
-                onClick={reset}
+                onClick={rescan}
                 className="h-12 w-full rounded-xl font-medium text-on-surface-variant transition-colors hover:bg-surface-container"
               >
                 Batal

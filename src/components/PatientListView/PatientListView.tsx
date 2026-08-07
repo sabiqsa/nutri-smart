@@ -19,6 +19,11 @@ const STATUS_CONFIG = {
     icon: "check_circle",
     className: "bg-secondary-container text-on-secondary-container",
   },
+  not_distributed: {
+    label: "Tidak Dibagikan",
+    icon: "block",
+    className: "bg-outline-variant text-on-surface",
+  },
 } as const;
 
 export function PatientListView({

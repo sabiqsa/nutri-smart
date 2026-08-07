@@ -23,7 +23,7 @@ export type Patient = {
   updated_at: string;
 };
 
-export type DistributionStatus = "pending" | "ready" | "delivered";
+export type DistributionStatus = "pending" | "ready" | "delivered" | "not_distributed";
 
 export type MealDelivery = {
   id: string;

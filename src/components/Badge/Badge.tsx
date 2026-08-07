@@ -2,7 +2,14 @@ import { cn } from "@/utils/cn";
 
 import styles from "./Badge.module.css";
 
-type BadgeVariant = "default" | "success" | "pending" | "ready" | "delivered" | "mismatch";
+type BadgeVariant =
+  | "default"
+  | "success"
+  | "pending"
+  | "ready"
+  | "delivered"
+  | "mismatch"
+  | "not_distributed";
 
 type BadgeProps = {
   children: React.ReactNode;

@@ -1,47 +1,89 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Icon } from "@/components/Icon/Icon";
+import { ALLERGY_OPTIONS, DIET_KHUSUS_OPTIONS, FOOD_FORM_OPTIONS } from "@/constants/patient-options";
 import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
-import type { PatientWithDelivery } from "@/types/patient";
+import type { DistributionStatus, PatientWithDelivery } from "@/types/patient";
 import { cn } from "@/utils/cn";
 
-const FOOD_FORM_LABELS = ["BIASA", "TIM", "BUBUR", "SARING", "CAIR"] as const;
+import { Icon } from "@/components/Icon/Icon";
+import { DashboardFilters } from "@/components/DashboardFilters/DashboardFilters";
 
-export default async function DashboardPage() {
+type SearchParams = { room?: string; diet_type?: string; special_diet?: string; status?: string };
+
+const STATUS_ROW_LABEL: Record<string, string> = {
+  pending: "PENDING",
+  ready: "PROSES",
+  delivered: "TERKIRIM",
+  not_distributed: "TIDAK DIBAGIKAN",
+};
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const profile = await getCurrentProfile();
   if (!canViewMetrics(profile?.role ?? null)) {
     // Perawat: no access to rekap-porsi metrics per spec.
     redirect("/patients");
   }
 
+  const params = await searchParams;
   const supabase = await createClient();
 
-  const { data: patients } = await supabase
-    .from("patients")
-    .select("*, meal_deliveries(*)")
-    .returns<PatientWithDelivery[]>();
+  let query = supabase.from("patients").select("*, meal_deliveries(*)");
+  if (params.room) query = query.eq("room", params.room);
+  if (params.diet_type) query = query.eq("diet_type", params.diet_type);
+  if (params.special_diet) query = query.contains("special_diet", [params.special_diet]);
 
-  const counts = { pending: 0, ready: 0, delivered: 0 };
+  const { data: allPatients } = await query.returns<PatientWithDelivery[]>();
+
+  const patients = (allPatients ?? []).filter((p) => {
+    if (!params.status) return true;
+    const status = p.meal_deliveries[0]?.status ?? "pending";
+    return status === params.status;
+  });
+
+  const total = patients.length;
+  const statusCounts: Record<DistributionStatus, number> = {
+    pending: 0,
+    ready: 0,
+    delivered: 0,
+    not_distributed: 0,
+  };
   const foodFormCounts: Record<string, number> = {};
+  const dietKhususCounts: Record<string, number> = {};
+  const allergyCounts: Record<string, number> = {};
   const alerts: PatientWithDelivery[] = [];
+  const specialRequests: PatientWithDelivery[] = [];
 
-  for (const patient of patients ?? []) {
+  for (const patient of patients) {
     const delivery = patient.meal_deliveries[0];
     const status = delivery?.status ?? "pending";
-    counts[status] += 1;
+    statusCounts[status] += 1;
 
     if (patient.food_form) {
       foodFormCounts[patient.food_form] = (foodFormCounts[patient.food_form] ?? 0) + 1;
     }
-
+    for (const diet of patient.special_diet ?? []) {
+      dietKhususCounts[diet] = (dietKhususCounts[diet] ?? 0) + 1;
+    }
+    for (const allergy of patient.allergies) {
+      allergyCounts[allergy.type] = (allergyCounts[allergy.type] ?? 0) + 1;
+    }
     if (patient.allergies.length > 0 || delivery?.mismatch) {
       alerts.push(patient);
     }
+    if (patient.is_special_request) {
+      specialRequests.push(patient);
+    }
   }
 
-  const recent = [...(patients ?? [])]
+  const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+
+  const recent = [...patients]
     .filter((p) => p.meal_deliveries[0])
     .sort(
       (a, b) =>
@@ -73,39 +115,57 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {/* Stats bento */}
-      <section className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <StatCard label="Pending" value={counts.pending} valueClass="text-on-surface-variant" />
-        <StatCard label="Ready" value={counts.ready} valueClass="text-primary" />
-        <StatCard label="Delivered" value={counts.delivered} valueClass="text-secondary" icon="check_circle" />
+      <DashboardFilters />
+
+      {/* Summary stat cards */}
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <StatCard label="Total Porsi" value={total} pct={null} valueClass="text-on-surface" />
+        <StatCard
+          label="Sudah Dibagikan"
+          value={statusCounts.delivered}
+          pct={pct(statusCounts.delivered)}
+          valueClass="text-secondary"
+        />
+        <StatCard
+          label="Belum Dibagikan"
+          value={statusCounts.pending + statusCounts.ready}
+          pct={pct(statusCounts.pending + statusCounts.ready)}
+          valueClass="text-primary"
+        />
+        <StatCard
+          label="Tidak Dibagikan"
+          value={statusCounts.not_distributed}
+          pct={pct(statusCounts.not_distributed)}
+          valueClass="text-on-surface-variant"
+        />
+        <StatCard
+          label="Permintaan Khusus"
+          value={specialRequests.length}
+          pct={pct(specialRequests.length)}
+          valueClass="text-error"
+        />
       </section>
 
-      {/* Diet stats */}
-      {Object.keys(foodFormCounts).length > 0 ? (
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">Statistik Bentuk Makanan</h2>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            {FOOD_FORM_LABELS.filter((f) => foodFormCounts[f]).map((form) => (
-              <div
-                key={form}
-                className="flex flex-col items-center justify-center gap-1 rounded-xl border border-outline-variant bg-surface-container-lowest p-4 transition-colors hover:border-primary"
-              >
-                <span className="text-xs text-on-surface-variant">{form}</span>
-                <span className="text-xl font-semibold text-primary">{foodFormCounts[form]}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {/* Bentuk Makanan */}
+      <RekapPanel title="Rekap Bentuk Makanan" counts={foodFormCounts} options={FOOD_FORM_OPTIONS} total={total} />
+
+      {/* Diet Khusus */}
+      <RekapPanel
+        title="Rekap Diet Khusus"
+        counts={dietKhususCounts}
+        options={DIET_KHUSUS_OPTIONS}
+        total={total}
+      />
+
+      {/* Alergi */}
+      <RekapPanel title="Rekap Alergi" counts={allergyCounts} options={ALLERGY_OPTIONS} total={total} />
 
       {/* Urgent alerts */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <Icon name="warning" filled className="text-error" />
-            Pemberitahuan Mendesak
-          </h2>
-        </div>
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <Icon name="warning" filled className="text-error" />
+          Pemberitahuan Mendesak
+        </h2>
         {alerts.length === 0 ? (
           <p className="text-sm text-on-surface-variant">Gak ada alert saat ini.</p>
         ) : (
@@ -140,10 +200,45 @@ export default async function DashboardPage() {
         )}
       </section>
 
+      {/* Permintaan Khusus */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Permintaan Khusus ({specialRequests.length})</h2>
+          <Link href="/patients?special_request=true" className="text-sm font-medium text-primary">
+            Lihat Semua
+          </Link>
+        </div>
+        {specialRequests.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">Gak ada permintaan khusus saat ini.</p>
+        ) : (
+          <div className="space-y-2">
+            {specialRequests.slice(0, 5).map((patient) => (
+              <Link
+                key={patient.id}
+                href={`/patients/${patient.id}`}
+                className="rounded-card block border border-outline-variant bg-surface-container-lowest p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">
+                    {patient.patient_name ?? patient.medical_record_number}
+                  </span>
+                  <span className="text-xs text-on-surface-variant">
+                    {patient.room} · {patient.medical_record_number}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-on-surface-variant">{patient.special_request_note}</p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Recent distribution table */}
-      {recent.length > 0 ? (
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">Monitoring Distribusi Terakhir</h2>
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Monitoring Distribusi Terakhir</h2>
+        {recent.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">Belum ada aktivitas distribusi.</p>
+        ) : (
           <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-outline-variant bg-surface-container-low">
@@ -166,10 +261,12 @@ export default async function DashboardPage() {
                           className={
                             status === "delivered"
                               ? "rounded bg-secondary-container px-2 py-1 text-xs font-bold text-on-secondary-container"
-                              : "rounded bg-primary-container px-2 py-1 text-xs font-bold text-on-primary-container"
+                              : status === "not_distributed"
+                                ? "rounded bg-outline-variant px-2 py-1 text-xs font-bold text-on-surface"
+                                : "rounded bg-primary-container px-2 py-1 text-xs font-bold text-on-primary-container"
                           }
                         >
-                          {status === "delivered" ? "TERKIRIM" : "PROSES"}
+                          {STATUS_ROW_LABEL[status]}
                         </span>
                       </td>
                     </tr>
@@ -178,8 +275,8 @@ export default async function DashboardPage() {
               </tbody>
             </table>
           </div>
-        </section>
-      ) : null}
+        )}
+      </section>
     </div>
   );
 }
@@ -187,22 +284,59 @@ export default async function DashboardPage() {
 function StatCard({
   label,
   value,
+  pct,
   valueClass,
-  icon,
 }: {
   label: string;
   value: number;
+  pct: number | null;
   valueClass: string;
-  icon?: string;
 }) {
   return (
-    <div className="flex h-32 flex-col justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-4 transition-colors hover:border-primary">
-      <span className="text-sm text-on-surface-variant">{label}</span>
-      <div className="flex items-baseline gap-2">
-        <span className={cn("text-3xl font-bold", valueClass)}>{value}</span>
-        {icon ? <Icon name={icon} filled className={valueClass} /> : null}
+    <div className="flex h-24 flex-col justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-3 transition-colors hover:border-primary">
+      <span className="text-xs text-on-surface-variant">{label}</span>
+      <div className="flex items-baseline gap-1">
+        <span className={cn("text-2xl font-bold", valueClass)}>{value}</span>
+        {pct !== null ? <span className="text-xs text-on-surface-variant">({pct}%)</span> : null}
       </div>
     </div>
   );
 }
 
+function RekapPanel({
+  title,
+  counts,
+  options,
+  total,
+}: {
+  title: string;
+  counts: Record<string, number>;
+  options: readonly string[];
+  total: number;
+}) {
+  const entries = options.filter((o) => counts[o]);
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {entries.map((option) => (
+          <div
+            key={option}
+            className="flex flex-col items-center justify-center gap-1 rounded-xl border border-outline-variant bg-surface-container-lowest p-4 text-center transition-colors hover:border-primary"
+          >
+            <span className="text-xs text-on-surface-variant">{option}</span>
+            <span className="text-xl font-semibold text-primary">{counts[option]}</span>
+          </div>
+        ))}
+        <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-outline-variant bg-surface-container-high p-4 text-center">
+          <span className="text-xs text-on-surface-variant">Total</span>
+          <span className="text-xl font-semibold">{total}</span>
+        </div>
+      </div>
+    </section>
+  );
+}

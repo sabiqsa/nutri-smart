@@ -3,16 +3,21 @@ import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 
 import { Badge } from "@/components/Badge/Badge";
+import { MarkNotDistributedForm } from "@/components/MarkNotDistributedForm/MarkNotDistributedForm";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { canEditPatients, canViewDietHistory, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
 import { buildPatientQrValue } from "@/utils/patient-qr";
+import { canPrintLabel, canScanDistribution } from "@/utils/roles";
+
+import { markNotDistributed } from "../delivery-actions";
 
 const STATUS_LABEL = {
   pending: "Pending",
   ready: "Ready",
   delivered: "Delivered",
+  not_distributed: "Tidak Dibagikan",
 } as const;
 
 export default async function PatientDetailPage({
@@ -57,15 +62,31 @@ export default async function PatientDetailPage({
       <div className="flex flex-col gap-4 p-4">
         <div className="flex items-center justify-between">
           <Badge variant={status}>{STATUS_LABEL[status]}</Badge>
-          {canEdit ? (
-            <Link
-              href={`/patients/${patient.id}/edit`}
-              className="text-sm font-medium text-primary"
-            >
-              Edit
-            </Link>
-          ) : null}
+          <div className="flex gap-3">
+            {canPrintLabel(profile?.role ?? null) ? (
+              <Link href={`/patients/${patient.id}/label`} className="text-sm font-medium text-primary">
+                Cetak Label
+              </Link>
+            ) : null}
+            {canEdit ? (
+              <Link
+                href={`/patients/${patient.id}/edit`}
+                className="text-sm font-medium text-primary"
+              >
+                Edit
+              </Link>
+            ) : null}
+          </div>
         </div>
+
+        {canScanDistribution(profile?.role ?? null) &&
+        patient.meal_deliveries[0] &&
+        status !== "not_distributed" &&
+        status !== "delivered" ? (
+          <MarkNotDistributedForm
+            action={markNotDistributed.bind(null, patient.meal_deliveries[0].id, patient.id)}
+          />
+        ) : null}
 
         {qrDataUrl ? (
           <div className="rounded-card flex flex-col items-center gap-2 border border-outline-variant bg-surface-container-lowest p-4">

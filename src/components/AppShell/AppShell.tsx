@@ -33,7 +33,7 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
       <aside
         className={cn(
           styles.sidebar,
-          "hidden w-56 flex-col gap-1 bg-surface-container-lowest p-4 md:flex",
+          "hidden w-56 flex-col gap-1 bg-surface-container-lowest p-4 md:flex print:hidden",
         )}
       >
         <div className="mb-4 flex items-center gap-2 px-2">
@@ -48,7 +48,7 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-outline-variant bg-surface px-4">
+        <header className="flex h-16 items-center justify-between border-b border-outline-variant bg-surface px-4 print:hidden">
           <div className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container md:hidden">
               <Icon name="account_circle" size={22} />
@@ -87,7 +87,7 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
       <nav
         className={cn(
           styles.bottomNav,
-          "fixed inset-x-0 bottom-0 z-50 flex items-center justify-around rounded-t-xl border-t border-outline-variant bg-surface px-2 py-2 shadow-lg md:hidden",
+          "fixed inset-x-0 bottom-0 z-50 flex items-center justify-around rounded-t-xl border-t border-outline-variant bg-surface px-2 py-2 shadow-lg md:hidden print:hidden",
         )}
       >
         {navItems.map((item) => (
