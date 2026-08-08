@@ -52,7 +52,7 @@ export function PatientForm({ action, initial }: PatientFormProps) {
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 p-4">
+    <form action={formAction} className="mx-auto flex w-full max-w-lg flex-col gap-4 p-4">
       <SelectField name="room" label="Ruangan" defaultValue={initial?.room ?? ""} options={ROOM_OPTIONS} required />
       <TextField name="bed" label="Bed" defaultValue={initial?.bed ?? ""} />
       <TextField
@@ -145,7 +145,7 @@ export function PatientForm({ action, initial }: PatientFormProps) {
                 placeholder="Keterangan (contoh: gatal ringan)"
                 defaultValue={allergyDetails.get(option) ?? ""}
                 onChange={(e) => setAllergyDetails((prev) => new Map(prev).set(option, e.target.value))}
-                className="rounded-card ml-6 border border-outline-variant px-3 py-1.5 text-sm"
+                className="rounded-card ml-6 border border-outline-variant px-3 py-1.5 text-base"
               />
             ) : null}
           </div>
@@ -177,7 +177,7 @@ export function PatientForm({ action, initial }: PatientFormProps) {
             defaultValue={initial?.special_request_note ?? ""}
             rows={2}
             required
-            className="rounded-card border border-outline-variant px-3 py-2 text-sm"
+            className="rounded-card border border-outline-variant px-3 py-2 text-base"
           />
         ) : null}
       </div>
@@ -225,7 +225,7 @@ function TextField({
         type={type}
         defaultValue={defaultValue}
         required={required}
-        className="rounded-card border border-outline-variant px-3 py-2 text-sm"
+        className="rounded-card border border-outline-variant px-3 py-2 text-base"
       />
     </div>
   );
@@ -250,7 +250,7 @@ function TextAreaField({
         name={name}
         defaultValue={defaultValue}
         rows={3}
-        className="rounded-card border border-outline-variant px-3 py-2 text-sm"
+        className="rounded-card border border-outline-variant px-3 py-2 text-base"
       />
     </div>
   );
@@ -282,7 +282,7 @@ function SelectField({
         defaultValue={defaultValue}
         required={required}
         onChange={(e) => onChange?.(e.target.value)}
-        className="rounded-card border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm"
+        className="rounded-card border border-outline-variant bg-surface-container-lowest px-3 py-2 text-base"
       >
         <option value="">(pilih)</option>
         {options.map((option) => (
