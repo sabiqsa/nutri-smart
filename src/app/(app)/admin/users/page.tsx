@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 
+import { CreateUserForm } from "@/components/CreateUserForm/CreateUserForm";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { UserRoleForm } from "@/components/UserRoleForm/UserRoleForm";
 import { getCurrentProfile, isAdmin } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { Profile } from "@/types/profile";
 
-import { updateProfileRole } from "./actions";
+import { createUser, updateProfileRole } from "./actions";
 
 export default async function AdminUsersPage() {
   const profile = await getCurrentProfile();
@@ -26,6 +27,8 @@ export default async function AdminUsersPage() {
       <PageHeader title="Kelola User" backHref="/dashboard" />
 
       <div className="flex flex-col gap-2 p-4">
+        <CreateUserForm action={createUser} />
+
         {(profiles ?? []).map((user) => (
           <div
             key={user.id}

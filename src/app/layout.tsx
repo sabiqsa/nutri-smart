@@ -4,6 +4,7 @@ import { Lato, Geist_Mono } from "next/font/google";
 import { InstallPrompt } from "@/components/InstallPrompt/InstallPrompt";
 
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
 const lato = Lato({
   variable: "--font-lato",
@@ -40,15 +41,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${lato.variable} ${geistMono.variable} h-full antialiased`}
+      className={cn("h-full antialiased font-sans", lato.variable, geistMono.variable)}
     >
-      <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font -- root layout loads once for the whole app, this isn't per-page */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
         <InstallPrompt />

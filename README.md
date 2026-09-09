@@ -38,7 +38,10 @@ Role di-assign manual lewat `/admin/users` (butuh 1 akun admin pertama — lihat
    ```env
    NEXT_PUBLIC_SUPABASE_URL=
    NEXT_PUBLIC_SUPABASE_ANON_KEY=
+   SUPABASE_SERVICE_ROLE_KEY=
    ```
+
+   `SUPABASE_SERVICE_ROLE_KEY` (Settings → API → `service_role` secret) dipake fitur admin "Tambah User" (server-only, bypass RLS) — **harus** ikut ditaro di env Vercel juga, bukan cuma lokal.
 
    `SUPABASE_DB_URL` (connection string, dari Settings → Database → Connection pooler) cuma dipake lokal buat jalanin migration, jangan taro di env production/Vercel.
 

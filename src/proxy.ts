@@ -35,6 +35,11 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|sw.js|icon-192.png|icon-512.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Skip Next internals + anything that's a static asset by extension
+    // (icons, fonts, manifest, service worker) instead of hardcoding
+    // individual filenames — that list kept silently missing new asset
+    // types (fonts, manifest.webmanifest) and forcing them through the
+    // login redirect for guests.
+    "/((?!_next/static|_next/image|manifest\\.webmanifest|sw\\.js|.*\\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?|ttf|otf)$).*)",
   ],
 };

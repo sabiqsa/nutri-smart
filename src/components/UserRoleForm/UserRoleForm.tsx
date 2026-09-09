@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { UserRole } from "@/types/profile";
 
 type UserRoleFormAction = (
@@ -20,26 +22,23 @@ export function UserRoleForm({
 
   return (
     <form action={formAction} className="flex items-center gap-2">
-      <select
-        name="role"
-        defaultValue={currentRole ?? ""}
-        className="rounded-card border border-outline-variant px-2 py-1 text-sm"
-      >
-        <option value="">(belum di-assign)</option>
-        <option value="perawat">Perawat</option>
-        <option value="ahli_gizi">Ahli Gizi</option>
-        <option value="produksi">Bagian Produksi</option>
-        <option value="distribusi">Bagian Distribusi</option>
-        <option value="admin">Admin</option>
-      </select>
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-card bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-60"
-      >
+      <Select name="role" defaultValue={currentRole ?? "none"}>
+        <SelectTrigger className="w-44">
+          <SelectValue placeholder="(belum di-assign)" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">(belum di-assign)</SelectItem>
+          <SelectItem value="perawat">Perawat</SelectItem>
+          <SelectItem value="ahli_gizi">Ahli Gizi</SelectItem>
+          <SelectItem value="produksi">Bagian Produksi</SelectItem>
+          <SelectItem value="distribusi">Bagian Distribusi</SelectItem>
+          <SelectItem value="admin">Admin</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button type="submit" size="sm" disabled={pending}>
         {pending ? "..." : "Simpan"}
-      </button>
-      {error ? <span className="text-xs text-error">{error}</span> : null}
+      </Button>
+      {error ? <span className="text-xs text-destructive">{error}</span> : null}
     </form>
   );
 }

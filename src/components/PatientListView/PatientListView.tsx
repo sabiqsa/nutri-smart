@@ -144,14 +144,20 @@ function PatientCard({ patient, canScan }: { patient: PatientWithDelivery; canSc
 
       <div
         className={cn(
-          "flex size-16 shrink-0 flex-col items-center justify-center rounded-lg border",
+          "flex size-16 shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg border p-0.5",
           highAlert
             ? "border-error-container bg-error-container text-on-error-container"
             : "border-outline-variant bg-surface-container-high",
         )}
       >
         <span className="text-xs">Bed</span>
-        <span className={cn("text-lg font-bold", highAlert ? "text-error" : "text-primary")}>
+        <span
+          className={cn(
+            "line-clamp-2 w-full text-center leading-tight font-bold break-words",
+            (patient.bed?.length ?? 0) > 4 ? "text-xs" : "text-lg",
+            highAlert ? "text-error" : "text-primary",
+          )}
+        >
           {patient.bed ?? "-"}
         </span>
       </div>

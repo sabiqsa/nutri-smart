@@ -19,10 +19,11 @@ vercel --prod             # deploy production
 
 Pas ditanya env vars pertama kali (atau lewat `vercel env add`), isi:
 
-| Key                         | Value                 |
-| ---------------------------- | --------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | isi dari `.env.local` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | isi dari `.env.local` |
+| Key                              | Value                 |
+| -------------------------------- | --------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`       | isi dari `.env.local` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | isi dari `.env.local` |
+| `SUPABASE_SERVICE_ROLE_KEY`      | isi dari `.env.local` (dipake fitur admin "Tambah User") |
 
 **Jangan** tambahin `SUPABASE_DB_URL` ke Vercel — itu cuma dipake lokal buat migration script sekali jalan, bukan runtime app.
 

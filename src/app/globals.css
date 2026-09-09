@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/*
+ ---break---
+ */
+@custom-variant dark (&:is(.dark *));
 
 /*
  * Design tokens — ported directly from the "Clinical Precision" design
@@ -71,6 +77,33 @@
   --color-status-mismatch: var(--color-error);
 
   --radius-card: 0.75rem;
+
+  /*
+   * shadcn/ui token names, aliased to the M3 tokens above instead of
+   * shadcn's default neutral oklch scale — keeps generated components
+   * (`shadcn add ...`) on-brand for free. Re-alias here, don't hand-edit
+   * component files.
+   */
+  --background: var(--color-background);
+  --foreground: var(--color-on-background);
+  --card: var(--color-surface-container-lowest);
+  --card-foreground: var(--color-on-surface);
+  --popover: var(--color-surface-container-lowest);
+  --popover-foreground: var(--color-on-surface);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-on-primary);
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-on-secondary);
+  --muted: var(--color-surface-container);
+  --muted-foreground: var(--color-on-surface-variant);
+  --accent: var(--color-secondary-container);
+  --accent-foreground: var(--color-on-secondary-container);
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-on-error);
+  --border: var(--color-outline-variant);
+  --input: var(--color-outline-variant);
+  --ring: var(--color-primary);
+  --radius: var(--radius-card);
 }
 
 @theme inline {
@@ -138,6 +171,52 @@
   --color-status-mismatch: var(--color-status-mismatch);
 
   --radius-card: var(--radius-card);
+
+  --font-heading: var(--font-sans);
+
+  --color-ring: var(--ring);
+
+  --color-input: var(--input);
+
+  --color-border: var(--border);
+
+  --color-destructive: var(--destructive);
+
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-accent: var(--accent);
+
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-muted: var(--muted);
+
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-popover: var(--popover);
+
+  --color-card-foreground: var(--card-foreground);
+
+  --color-card: var(--card);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+
+  --radius-md: calc(var(--radius) * 0.8);
+
+  --radius-lg: var(--radius);
+
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  --radius-2xl: calc(var(--radius) * 1.8);
+
+  --radius-3xl: calc(var(--radius) * 2.2);
+
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 /*
@@ -154,9 +233,24 @@ body {
   font-family: var(--font-lato), Arial, Helvetica, sans-serif;
 }
 
-/* Material Symbols Outlined — loaded via <link> in layout.tsx. Default to
-   unfilled/regular weight; components opt into FILL via inline style where
-   the source design calls for it (active nav, decorative icons). */
+/* Material Symbols Outlined — self-hosted (public/fonts/), not loaded from
+   fonts.googleapis.com at runtime. The external <link> approach used
+   font-display:swap, which shows the raw ligature text (e.g. "nutrition",
+   "mail") as the fallback and only swaps to the glyph once the font
+   downloads — on a slow/blocked connection that fallback text just stays
+   forever. Self-hosted + font-display:block waits briefly instead of ever
+   showing that fallback. */
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url("/fonts/material-symbols-outlined.woff2") format("woff2");
+}
+
+/* Default to unfilled/regular weight; components opt into FILL via inline
+   style where the source design calls for it (active nav, decorative
+   icons). */
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined";
   font-weight: normal;
@@ -173,4 +267,20 @@ body {
   font-size: 24px;
   line-height: 1;
   vertical-align: middle;
+}
+/*
+ * No .dark block — this app is light-mode-only (see comment above), and
+ * every --background/--foreground/etc. token already aliases straight to
+ * the M3 tokens, so there's no separate dark palette to maintain.
+ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
