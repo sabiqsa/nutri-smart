@@ -32,7 +32,6 @@ export function UserRoleForm({
           <SelectItem value="ahli_gizi">Ahli Gizi</SelectItem>
           <SelectItem value="produksi">Bagian Produksi</SelectItem>
           <SelectItem value="distribusi">Bagian Distribusi</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
         </SelectContent>
       </Select>
       <Button type="submit" size="sm" disabled={pending}>

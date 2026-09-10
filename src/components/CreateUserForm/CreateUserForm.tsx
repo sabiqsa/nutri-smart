@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useRef, useState } from "react";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,36 +13,47 @@ type CreateUserAction = (
   formData: FormData,
 ) => Promise<string | void | null>;
 
+type Result = { status: "idle" } | { status: "success" } | { status: "error"; message: string };
+
 export function CreateUserForm({ action }: { action: CreateUserAction }) {
-  const [error, formAction, pending] = useActionState(action, null);
+  const [pending, setPending] = useState(false);
+  const [result, setResult] = useState<Result>({ status: "idle" });
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function handleSubmit(formData: FormData) {
+    setPending(true);
+    const error = await action(null, formData);
+    setPending(false);
+
+    if (error) {
+      setResult({ status: "error", message: error });
+    } else {
+      setResult({ status: "success" });
+      formRef.current?.reset();
+    }
+  }
 
   return (
     <form
-      action={formAction}
+      ref={formRef}
+      action={handleSubmit}
       className="rounded-card flex flex-col gap-3 border border-outline-variant bg-surface-container-lowest p-4"
     >
       <span className="text-sm font-medium">Tambah User</span>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="full_name">Nama lengkap</Label>
-        <Input id="full_name" name="full_name" placeholder="Nama lengkap" />
+        <Input id="full_name" name="full_name" />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required placeholder="Email" />
+        <Input id="email" name="email" type="email" required />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          required
-          minLength={6}
-          placeholder="Min. 6 karakter"
-        />
+        <Input id="password" name="password" type="password" required minLength={6} />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -63,7 +75,20 @@ export function CreateUserForm({ action }: { action: CreateUserAction }) {
       <Button type="submit" disabled={pending}>
         {pending ? "Membuat..." : "Buat User"}
       </Button>
-      {error ? <span className="text-xs text-destructive">{error}</span> : null}
+
+      {result.status === "error" ? (
+        <Alert variant="destructive">
+          <AlertTitle>Gagal bikin user</AlertTitle>
+          <AlertDescription>{result.message}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {result.status === "success" ? (
+        <Alert className="border-primary/40 text-primary">
+          <AlertTitle>Berhasil</AlertTitle>
+          <AlertDescription className="text-primary/80">User baru berhasil dibuat.</AlertDescription>
+        </Alert>
+      ) : null}
     </form>
   );
 }

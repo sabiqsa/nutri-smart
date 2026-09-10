@@ -2,6 +2,10 @@
 
 import { useActionState, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
 type Action = (prevState: string | void | null, formData: FormData) => Promise<string | void | null>;
 
 export function MarkNotDistributedForm({ action }: { action: Action }) {
@@ -10,45 +14,32 @@ export function MarkNotDistributedForm({ action }: { action: Action }) {
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="text-sm font-medium text-error"
-      >
+      <Button type="button" variant="link" className="h-auto p-0 text-error" onClick={() => setOpen(true)}>
         Tandai Tidak Dibagikan
-      </button>
+      </Button>
     );
   }
 
   return (
     <form action={formAction} className="rounded-card flex flex-col gap-2 border border-error bg-error-container/20 p-3">
-      <label htmlFor="reason" className="text-xs font-medium text-on-error-container">
+      <Label htmlFor="reason" className="text-xs text-on-error-container">
         Alasan tidak dibagikan
-      </label>
-      <textarea
+      </Label>
+      <Textarea
         id="reason"
         name="reason"
         required
         rows={2}
         placeholder="Contoh: Pasien puasa pre-op / sudah pulang"
-        className="rounded-card border border-outline-variant px-3 py-2 text-sm"
       />
       {error ? <p className="text-xs text-error">{error}</p> : null}
       <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-card bg-error px-3 py-1.5 text-xs font-semibold text-on-error disabled:opacity-60"
-        >
+        <Button type="submit" variant="destructive" size="sm" disabled={pending}>
           {pending ? "Menyimpan..." : "Konfirmasi"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="rounded-card px-3 py-1.5 text-xs font-medium text-on-surface-variant"
-        >
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
           Batal
-        </button>
+        </Button>
       </div>
     </form>
   );

@@ -4,6 +4,8 @@ import { useActionState, useState } from "react";
 
 import { login } from "@/app/login/actions";
 import { Icon } from "@/components/Icon/Icon";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/utils/cn";
 
 import styles from "./LoginForm.module.css";
@@ -27,14 +29,14 @@ export function LoginForm() {
             size={18}
             className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-on-surface-variant"
           />
-          <input
+          <Input
             id="email"
             name="email"
             type="email"
             required
             autoComplete="email"
             placeholder="staff@hospital.org"
-            className={cn(styles.input, "w-full border border-outline-variant py-2 pr-3 pl-9 text-sm")}
+            className={cn(styles.input, "h-auto w-full border-outline-variant py-2 pr-3 pl-9 text-sm")}
           />
         </div>
       </div>
@@ -49,22 +51,24 @@ export function LoginForm() {
             size={18}
             className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-on-surface-variant"
           />
-          <input
+          <Input
             id="password"
             name="password"
             type={showPassword ? "text" : "password"}
             required
             autoComplete="current-password"
-            className={cn(styles.input, "w-full border border-outline-variant py-2 pr-9 pl-9 text-sm")}
+            className={cn(styles.input, "h-auto w-full border-outline-variant py-2 pr-9 pl-9 text-sm")}
           />
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setShowPassword((v) => !v)}
             aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-on-surface-variant"
+            className="absolute top-1/2 right-1 -translate-y-1/2 text-on-surface-variant hover:bg-transparent"
           >
             <Icon name={showPassword ? "visibility_off" : "visibility"} size={18} />
-          </button>
+          </Button>
         </div>
         <div className="text-right">
           <span className="text-xs font-medium text-primary">Forgot Password?</span>
@@ -73,16 +77,13 @@ export function LoginForm() {
 
       {error ? <p className="text-sm text-error">{error}</p> : null}
 
-      <button
+      <Button
         type="submit"
         disabled={pending}
-        className={cn(
-          styles.submit,
-          "rounded-full bg-primary py-3 text-sm font-semibold text-on-primary disabled:opacity-60",
-        )}
+        className={cn(styles.submit, "h-auto rounded-full py-3 text-sm font-semibold")}
       >
         {pending ? "Masuk..." : "Login"}
-      </button>
+      </Button>
 
       <p className="text-center text-xs text-on-surface-variant">Secure Clinician Access Only</p>
     </form>

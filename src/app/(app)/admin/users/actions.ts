@@ -64,7 +64,9 @@ export async function updateProfileRole(id: string, _prevState: string | void | 
   }
 
   const role = String(formData.get("role") ?? "");
-  const validRoles = ["perawat", "ahli_gizi", "produksi", "distribusi", "admin"];
+  // Same single-admin policy as createUser — admin isn't assignable from
+  // this form even if the posted value is tampered with.
+  const validRoles = ["perawat", "ahli_gizi", "produksi", "distribusi"];
   const nextRole = validRoles.includes(role) ? role : null;
 
   const supabase = await createClient();

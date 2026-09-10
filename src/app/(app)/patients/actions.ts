@@ -51,8 +51,11 @@ export async function createPatient(_prevState: string | void | null, formData: 
   }
 
   const values = patientFromFormData(formData);
-  if (!values.room || !values.medical_record_number) {
-    return "Ruangan dan No. RM wajib diisi.";
+  if (!values.room || !values.medical_record_number || !values.food_form) {
+    // food_form used to be enforced client-side by a native <select
+    // required> — now a Radix Select without real browser constraint
+    // validation, so this check carries that requirement server-side.
+    return "Ruangan, No. RM, dan Bentuk Makanan wajib diisi.";
   }
   if (values.is_special_request && !values.special_request_note) {
     return "Isi keterangan Permintaan Khusus.";
@@ -75,8 +78,11 @@ export async function updatePatient(id: string, _prevState: string | void | null
   }
 
   const values = patientFromFormData(formData);
-  if (!values.room || !values.medical_record_number) {
-    return "Ruangan dan No. RM wajib diisi.";
+  if (!values.room || !values.medical_record_number || !values.food_form) {
+    // food_form used to be enforced client-side by a native <select
+    // required> — now a Radix Select without real browser constraint
+    // validation, so this check carries that requirement server-side.
+    return "Ruangan, No. RM, dan Bentuk Makanan wajib diisi.";
   }
   if (values.is_special_request && !values.special_request_note) {
     return "Isi keterangan Permintaan Khusus.";

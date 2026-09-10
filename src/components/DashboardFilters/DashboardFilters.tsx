@@ -2,7 +2,14 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DIET_KHUSUS_OPTIONS, DIET_UTAMA_OPTIONS, ROOM_OPTIONS } from "@/constants/patient-options";
+
+// Radix Select items can't have an empty-string value — stands in for
+// "Semua" (no filter) and gets translated back to "" before touching the
+// URL search params.
+const ALL = "__all__";
 
 const STATUS_OPTIONS = [
   { value: "pending", label: "Pending" },
@@ -45,26 +52,32 @@ export function DashboardFilters() {
         options={DIET_KHUSUS_OPTIONS}
         onChange={(v) => setParam("special_diet", v)}
       />
-      <select
-        value={searchParams.get("status") ?? ""}
-        onChange={(e) => setParam("status", e.target.value)}
-        className="shrink-0 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-xs"
+      <Select
+        value={searchParams.get("status") || ALL}
+        onValueChange={(v) => setParam("status", v === ALL ? "" : v)}
       >
-        <option value="">Status: Semua</option>
-        {STATUS_OPTIONS.map((s) => (
-          <option key={s.value} value={s.value}>
-            {s.label}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger size="sm" className="shrink-0 rounded-full">
+          <SelectValue placeholder="Status: Semua" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL}>Status: Semua</SelectItem>
+          {STATUS_OPTIONS.map((s) => (
+            <SelectItem key={s.value} value={s.value}>
+              {s.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {hasFilters ? (
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
+          className="shrink-0 rounded-full"
           onClick={() => router.push(pathname)}
-          className="shrink-0 rounded-full bg-surface-container-high px-3 py-1.5 text-xs text-on-surface-variant"
         >
           Reset
-        </button>
+        </Button>
       ) : null}
     </div>
   );
@@ -82,17 +95,18 @@ function FilterSelect({
   onChange: (value: string) => void;
 }) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="shrink-0 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-xs"
-    >
-      <option value="">{label}: Semua</option>
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
+    <Select value={value || ALL} onValueChange={(v) => onChange(v === ALL ? "" : v)}>
+      <SelectTrigger size="sm" className="shrink-0 rounded-full">
+        <SelectValue placeholder={`${label}: Semua`} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ALL}>{label}: Semua</SelectItem>
+        {options.map((o) => (
+          <SelectItem key={o} value={o}>
+            {o}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

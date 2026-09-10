@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Icon } from "@/components/Icon/Icon";
+import { Input } from "@/components/ui/input";
 import type { PatientWithDelivery } from "@/types/patient";
 import { cn } from "@/utils/cn";
 
@@ -59,11 +60,11 @@ export function PatientListView({
           name="search"
           className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-on-surface-variant"
         />
-        <input
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search Patient or Bed..."
-          className="h-12 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pr-4 pl-12 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          className="h-12 rounded-xl pr-4 pl-12 text-sm focus-visible:border-primary focus-visible:ring-primary/50"
         />
       </div>
 
@@ -153,7 +154,7 @@ function PatientCard({ patient, canScan }: { patient: PatientWithDelivery; canSc
         <span className="text-xs">Bed</span>
         <span
           className={cn(
-            "line-clamp-2 w-full text-center leading-tight font-bold break-words",
+            "line-clamp-2 w-full text-center leading-tight font-bold wrap-break-word",
             (patient.bed?.length ?? 0) > 4 ? "text-xs" : "text-lg",
             highAlert ? "text-error" : "text-primary",
           )}

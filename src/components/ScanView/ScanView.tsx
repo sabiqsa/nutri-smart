@@ -4,6 +4,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useState } from "react";
 
 import { Icon } from "@/components/Icon/Icon";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ROOM_OPTIONS } from "@/constants/patient-options";
 import { createClient } from "@/libs/supabase/client";
 import type { PatientWithDelivery } from "@/types/patient";
@@ -91,23 +92,23 @@ export function ScanView() {
         <p className="max-w-xs text-center text-sm text-on-surface-variant">
           QR yang discan akan divalidasi terhadap ruangan ini — cegah makanan salah kamar.
         </p>
-        <select
-          onChange={(e) => {
-            setTargetRoom(e.target.value);
+        <Select
+          onValueChange={(room) => {
+            setTargetRoom(room);
             setState({ phase: "scanning" });
           }}
-          defaultValue=""
-          className="rounded-card w-full max-w-xs border border-outline-variant bg-surface-container-lowest px-3 py-3 text-sm"
         >
-          <option value="" disabled>
-            Pilih ruangan...
-          </option>
-          {ROOM_OPTIONS.map((room) => (
-            <option key={room} value={room}>
-              {room}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full max-w-xs">
+            <SelectValue placeholder="Pilih ruangan..." />
+          </SelectTrigger>
+          <SelectContent>
+            {ROOM_OPTIONS.map((room) => (
+              <SelectItem key={room} value={room}>
+                {room}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     );
   }

@@ -19,6 +19,11 @@ export default async function AdminUsersPage() {
   const { data: profiles } = await supabase
     .from("profiles")
     .select("id, full_name, email, role, created_at")
+    // Admin is a single bootstrapped superuser account, not a role assigned
+    // through this screen — don't list it here so it can't get reassigned.
+    // (.neq alone would also drop unassigned/null-role rows — SQL NULL
+    // fails "!= 'admin'" too — so explicitly keep those.)
+    .or("role.neq.admin,role.is.null")
     .order("created_at")
     .returns<Profile[]>();
 

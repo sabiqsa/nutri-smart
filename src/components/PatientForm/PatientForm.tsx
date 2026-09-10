@@ -2,6 +2,12 @@
 
 import { useActionState, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   ALLERGY_OPTIONS,
   CUSTOM_LIQUID_OPTION,
@@ -14,6 +20,12 @@ import {
   ROOM_OPTIONS,
 } from "@/constants/patient-options";
 import type { Patient } from "@/types/patient";
+
+// Radix Select items can't have an empty-string value — this sentinel
+// stands in for "(pilih)"/unselected and gets translated back to "" (which
+// patientFromFormData's emptyToNull() already treats as unset) via a hidden
+// input, instead of letting the literal sentinel reach the server action.
+const UNSET = "__unset__";
 
 type PatientFormAction = (
   prevState: string | void | null,
@@ -129,23 +141,22 @@ export function PatientForm({ action, initial }: PatientFormProps) {
         {ALLERGY_OPTIONS.map((option) => (
           <div key={option} className="flex flex-col gap-1">
             <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+              <Checkbox
                 name="allergies"
                 value={option}
                 defaultChecked={checkedAllergies.has(option)}
-                onChange={(e) => toggleAllergy(option, e.target.checked)}
+                onCheckedChange={(checked) => toggleAllergy(option, checked === true)}
               />
               {option}
             </label>
             {checkedAllergies.has(option) ? (
-              <input
+              <Input
                 type="text"
                 name={`allergy_detail_${option}`}
                 placeholder="Keterangan (contoh: gatal ringan)"
                 defaultValue={allergyDetails.get(option) ?? ""}
                 onChange={(e) => setAllergyDetails((prev) => new Map(prev).set(option, e.target.value))}
-                className="rounded-card ml-6 border border-outline-variant px-3 py-1.5 text-base"
+                className="ml-6 w-auto"
               />
             ) : null}
           </div>
@@ -161,23 +172,21 @@ export function PatientForm({ action, initial }: PatientFormProps) {
 
       <div className="rounded-card flex flex-col gap-2 border border-outline-variant p-3">
         <label className="flex items-center gap-2 text-sm font-medium">
-          <input
-            type="checkbox"
+          <Checkbox
             name="is_special_request"
             value="true"
             checked={isSpecialRequest}
-            onChange={(e) => setIsSpecialRequest(e.target.checked)}
+            onCheckedChange={(checked) => setIsSpecialRequest(checked === true)}
           />
           Permintaan Khusus
         </label>
         {isSpecialRequest ? (
-          <textarea
+          <Textarea
             name="special_request_note"
             placeholder="Jelasin permintaan khususnya — muncul di Pemberitahuan Mendesak"
             defaultValue={initial?.special_request_note ?? ""}
             rows={2}
             required
-            className="rounded-card border border-outline-variant px-3 py-2 text-base"
           />
         ) : null}
       </div>
@@ -186,13 +195,9 @@ export function PatientForm({ action, initial }: PatientFormProps) {
 
       {error ? <p className="text-sm text-error">{error}</p> : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-card bg-primary py-2 text-sm font-semibold text-on-primary disabled:opacity-60"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "Menyimpan..." : "Simpan"}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -216,17 +221,8 @@ function TextField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium text-on-surface">
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        required={required}
-        className="rounded-card border border-outline-variant px-3 py-2 text-base"
-      />
+      <Label htmlFor={name}>{label}</Label>
+      <Input id={name} name={name} type={type} defaultValue={defaultValue} required={required} />
     </div>
   );
 }
@@ -242,16 +238,8 @@ function TextAreaField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium text-on-surface">
-        {label}
-      </label>
-      <textarea
-        id={name}
-        name={name}
-        defaultValue={defaultValue}
-        rows={3}
-        className="rounded-card border border-outline-variant px-3 py-2 text-base"
-      />
+      <Label htmlFor={name}>{label}</Label>
+      <Textarea id={name} name={name} defaultValue={defaultValue} rows={3} />
     </div>
   );
 }
@@ -271,26 +259,37 @@ function SelectField({
   required?: boolean;
   onChange?: (value: string) => void;
 }) {
+  const [value, setValue] = useState(defaultValue || UNSET);
+
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium text-on-surface">
+      <Label htmlFor={name}>
         {label}
-      </label>
-      <select
-        id={name}
-        name={name}
-        defaultValue={defaultValue}
-        required={required}
-        onChange={(e) => onChange?.(e.target.value)}
-        className="rounded-card border border-outline-variant bg-surface-container-lowest px-3 py-2 text-base"
+        {required ? <span className="text-error"> *</span> : null}
+      </Label>
+      <Select
+        value={value}
+        onValueChange={(v) => {
+          setValue(v);
+          onChange?.(v === UNSET ? "" : v);
+        }}
       >
-        <option value="">(pilih)</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger id={name} className="w-full">
+          <SelectValue placeholder="(pilih)" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={UNSET}>(pilih)</SelectItem>
+          {options.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {/* Select's own Radix-managed hidden input would submit the raw
+          sentinel — carry the translated (possibly empty) value ourselves
+          instead, same contract the server action already expects. */}
+      <input type="hidden" name={name} value={value === UNSET ? "" : value} />
     </div>
   );
 }
@@ -311,7 +310,7 @@ function CheckboxGroup({
       <legend className="mb-1 text-sm font-medium text-on-surface">{legend}</legend>
       {options.map((option) => (
         <label key={option} className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name={name} value={option} defaultChecked={defaultChecked.includes(option)} />
+          <Checkbox name={name} value={option} defaultChecked={defaultChecked.includes(option)} />
           {option}
         </label>
       ))}

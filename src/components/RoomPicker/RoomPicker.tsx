@@ -2,23 +2,32 @@
 
 import { useRouter } from "next/navigation";
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ROOM_OPTIONS } from "@/constants/patient-options";
+
+// Radix Select items can't have an empty-string value — this sentinel
+// stands in for "no room selected / clear filter".
+const ALL_ROOMS = "__all__";
 
 export function RoomPicker({ value }: { value: string }) {
   const router = useRouter();
 
   return (
-    <select
-      value={value}
-      onChange={(e) => router.push(e.target.value ? `?room=${encodeURIComponent(e.target.value)}` : "?")}
-      className="rounded-card w-full border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm"
+    <Select
+      value={value || ALL_ROOMS}
+      onValueChange={(v) => router.push(v === ALL_ROOMS ? "?" : `?room=${encodeURIComponent(v)}`)}
     >
-      <option value="">Pilih Ruangan...</option>
-      {ROOM_OPTIONS.map((room) => (
-        <option key={room} value={room}>
-          {room}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Pilih Ruangan..." />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ALL_ROOMS}>Pilih Ruangan...</SelectItem>
+        {ROOM_OPTIONS.map((room) => (
+          <SelectItem key={room} value={room}>
+            {room}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
