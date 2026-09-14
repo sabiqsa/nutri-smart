@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { Icon } from "@/components/Icon/Icon";
+import { APP_TIMEZONE, MEAL_PERIOD_LABEL, MEAL_PERIOD_ORDER } from "@/config/meal-cutoff";
 import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
+import type { DistributionSnapshot, MealCutoffRow } from "@/types/meal-cutoff";
 import type { PatientWithDelivery } from "@/types/patient";
 
 const PAPER_SHEETS_PER_DELIVERY = 1;
@@ -15,10 +17,25 @@ export default async function AnalyticsPage() {
 
   const supabase = await createClient();
 
-  const { data: patients } = await supabase
-    .from("patients")
-    .select("*, meal_deliveries(*)")
-    .returns<PatientWithDelivery[]>();
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: APP_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  const [{ data: patients }, { data: snapshots }, { data: cutoffs }] = await Promise.all([
+    supabase.from("patients").select("*, meal_deliveries(*)").returns<PatientWithDelivery[]>(),
+    supabase
+      .from("distribution_snapshots")
+      .select("*")
+      .eq("snapshot_date", today)
+      .returns<DistributionSnapshot[]>(),
+    supabase.from("meal_cutoffs").select("*").returns<MealCutoffRow[]>(),
+  ]);
+
+  const snapshotByPeriod = new Map((snapshots ?? []).map((s) => [s.period, s]));
+  const cutoffByPeriod = new Map((cutoffs ?? []).map((c) => [c.period, c]));
 
   const all = patients ?? [];
   const total = all.length;
@@ -115,6 +132,54 @@ export default async function AnalyticsPage() {
           </p>
         </section>
       </div>
+
+      {/* Rekap evaluasi distribusi otomatis — snapshot per sesi, dibekukan
+          otomatis oleh cron di jam cut-off evaluasi (lihat
+          src/libs/meal-cutoff/run-cutoff-job.ts), bukan hitungan live. */}
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Rekap Evaluasi Distribusi (Otomatis)</h2>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {MEAL_PERIOD_ORDER.map((period) => {
+            const snapshot = snapshotByPeriod.get(period);
+            const cutoff = cutoffByPeriod.get(period);
+            return (
+              <div
+                key={period}
+                className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4"
+              >
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-primary">{MEAL_PERIOD_LABEL[period]}</span>
+                  {cutoff ? (
+                    <span className="text-xs text-on-surface-variant">
+                      cut-off {cutoff.evaluation_cutoff_time.slice(0, 5)}
+                    </span>
+                  ) : null}
+                </div>
+                {!snapshot ? (
+                  <p className="text-xs text-on-surface-variant">
+                    Belum digenerate — nunggu jam cut-off evaluasi.
+                  </p>
+                ) : (
+                  <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                    <dt className="text-on-surface-variant">Berhasil</dt>
+                    <dd className="text-right font-semibold text-secondary">{snapshot.berhasil_count}</dd>
+                    <dt className="text-on-surface-variant">Pending</dt>
+                    <dd className="text-right font-semibold text-primary">{snapshot.pending_count}</dd>
+                    <dt className="text-on-surface-variant">Tidak Dibagikan</dt>
+                    <dd className="text-right font-semibold text-on-surface">
+                      {snapshot.tidak_dibagikan_count}
+                    </dd>
+                    <dt className="border-t border-outline-variant pt-1 font-medium text-on-surface">Total</dt>
+                    <dd className="border-t border-outline-variant pt-1 text-right font-bold">
+                      {snapshot.total_count}
+                    </dd>
+                  </dl>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Error log */}
       <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { PatientForm } from "@/components/PatientForm/PatientForm";
 import { canEditPatients, getCurrentProfile } from "@/libs/supabase/get-profile";
+import { getDataCutoffTimes } from "@/libs/meal-cutoff/get-data-cutoff-times";
 import { createClient } from "@/libs/supabase/server";
 import type { Patient } from "@/types/patient";
 
@@ -31,11 +32,12 @@ export default async function EditPatientPage({
   }
 
   const action = updatePatient.bind(null, patient.id);
+  const cutoffTimes = await getDataCutoffTimes();
 
   return (
     <div>
       <PageHeader title={`Edit ${patient.patient_name ?? "Pasien"}`} backHref={`/patients/${patient.id}`} />
-      <PatientForm action={action} initial={patient} />
+      <PatientForm action={action} initial={patient} cutoffTimes={cutoffTimes} />
     </div>
   );
 }

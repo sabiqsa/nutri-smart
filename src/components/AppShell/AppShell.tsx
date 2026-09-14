@@ -69,9 +69,20 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
               <Icon name="notifications" />
             </button>
             {role === "admin" ? (
-              <Link href="/admin/users" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">
-                Kelola User
-              </Link>
+              <>
+                <Link
+                  href="/admin/users"
+                  className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
+                >
+                  Kelola User
+                </Link>
+                <Link
+                  href="/admin/meal-cutoff"
+                  className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
+                >
+                  Cut-off
+                </Link>
+              </>
             ) : null}
             <form action="/auth/logout" method="post">
               <button type="submit" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">

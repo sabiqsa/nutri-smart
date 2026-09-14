@@ -24,6 +24,7 @@ Pas ditanya env vars pertama kali (atau lewat `vercel env add`), isi:
 | `NEXT_PUBLIC_SUPABASE_URL`       | isi dari `.env.local` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | isi dari `.env.local` |
 | `SUPABASE_SERVICE_ROLE_KEY`      | isi dari `.env.local` (dipake fitur admin "Tambah User") |
+| `CRON_SECRET`                     | random string bebas — dipake buat verifikasi request dari Vercel Cron ke `/api/cron/meal-cutoff` |
 
 **Jangan** tambahin `SUPABASE_DB_URL` ke Vercel — itu cuma dipake lokal buat migration script sekali jalan, bukan runtime app.
 
@@ -40,3 +41,4 @@ Pas ditanya env vars pertama kali (atau lewat `vercel env add`), isi:
 - Migration di `supabase/migrations/` harus udah semua kejalanin di project Supabase itu (cek lewat SQL Editor / Table Editor) sebelum deploy — app gak jalanin migration otomatis.
 - Cek PWA install prompt + kamera scan jalan (butuh HTTPS — Vercel otomatis kasih itu).
 - Custom domain (opsional): Vercel Dashboard → Project → Settings → Domains.
+- Cron cut-off (`vercel.json`, jalan tiap 15 menit) butuh plan Vercel yang support cron frekuensi segitu — kalau plan-nya gak support, pake cron eksternal (misal cron-job.org) yang nge-hit `https://<domain>/api/cron/meal-cutoff` tiap 15 menit dengan header `Authorization: Bearer <CRON_SECRET>`.

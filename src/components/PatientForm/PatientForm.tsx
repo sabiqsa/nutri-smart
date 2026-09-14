@@ -2,12 +2,14 @@
 
 import { useActionState, useState } from "react";
 
+import { MealPeriodIndicator } from "@/components/MealPeriodIndicator/MealPeriodIndicator";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { MealCutoffTimes } from "@/utils/meal-period";
 import {
   ALLERGY_OPTIONS,
   CUSTOM_LIQUID_OPTION,
@@ -35,9 +37,10 @@ type PatientFormAction = (
 type PatientFormProps = {
   action: PatientFormAction;
   initial?: Partial<Patient>;
+  cutoffTimes?: MealCutoffTimes;
 };
 
-export function PatientForm({ action, initial }: PatientFormProps) {
+export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) {
   const [error, formAction, pending] = useActionState(action, null);
 
   const [foodForm, setFoodForm] = useState(initial?.food_form ?? "");
@@ -65,6 +68,8 @@ export function PatientForm({ action, initial }: PatientFormProps) {
 
   return (
     <form action={formAction} className="mx-auto flex w-full max-w-lg flex-col gap-4 p-4">
+      {cutoffTimes ? <MealPeriodIndicator cutoffTimes={cutoffTimes} /> : null}
+
       <SelectField name="room" label="Ruangan" defaultValue={initial?.room ?? ""} options={ROOM_OPTIONS} required />
       <TextField name="bed" label="Bed" defaultValue={initial?.bed ?? ""} />
       <TextField

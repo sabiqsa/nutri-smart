@@ -69,6 +69,7 @@ Role di-assign manual lewat `/admin/users` (butuh 1 akun admin pertama — lihat
 | `yarn build` | Production build |
 | `yarn start` | Jalanin hasil build (port 3002) |
 | `yarn lint` | ESLint |
+| `yarn test` | Unit test (Vitest) — util murni kayak `getMealPeriodForTimestamp` |
 
 Build/dev sengaja pake `--webpack` — Serwist (service worker) belum kompatibel penuh sama Turbopack (default Next 16).
 

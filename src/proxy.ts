@@ -5,8 +5,17 @@ import { updateSession } from "@/libs/supabase/middleware";
 const PUBLIC_PATHS = ["/login"];
 
 export async function proxy(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
+
+  // Cron hits this with no browser session at all (Vercel Cron / an
+  // external scheduler, not a logged-in user) and authenticates itself via
+  // CRON_SECRET inside the route — skip the Supabase session dance
+  // entirely instead of bouncing it to /login.
+  if (pathname.startsWith("/api/cron/")) {
+    return NextResponse.next();
+  }
+
+  const { supabaseResponse, user } = await updateSession(request);
 
   const isPublicPath = PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/auth/");
 
