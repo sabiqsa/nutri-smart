@@ -4,6 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Icon } from "@/components/Icon/Icon";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { UserRole } from "@/types/profile";
 import { cn } from "@/lib/utils";
 
@@ -55,40 +63,89 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
             </span>
             <div className="flex flex-col">
               <span className="font-bold text-primary">NutriSmart</span>
+              {/* Only show the separate role badge when there's a name to
+                  pair it with — otherwise this repeated ROLE_LABEL[role]
+                  as both the fallback name and the badge ("Admin ADMIN"). */}
               <span className="text-xs text-on-surface-variant">
-                {fullName ?? ROLE_LABEL[role]}
-                <span className="ml-2 text-[10px] text-on-surface-variant uppercase">{ROLE_LABEL[role]}</span>
+                {fullName ? (
+                  <>
+                    {fullName}
+                    <span className="ml-2 text-[10px] text-on-surface-variant uppercase">{ROLE_LABEL[role]}</span>
+                  </>
+                ) : (
+                  ROLE_LABEL[role]
+                )}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <button
               type="button"
               className="flex size-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-container"
             >
               <Icon name="notifications" />
             </button>
-            {role === "admin" ? (
-              <>
-                <Link
-                  href="/admin/users"
-                  className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
+
+            {/* Desktop: plain links. Mobile: collapsed into the hamburger
+                below — this row was overflowing/cramped next to the bell
+                on narrow screens. */}
+            <div className="hidden items-center gap-3 md:flex">
+              {role === "admin" ? (
+                <>
+                  <Link
+                    href="/admin/users"
+                    className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
+                  >
+                    Kelola User
+                  </Link>
+                  <Link
+                    href="/admin/meal-cutoff"
+                    className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
+                  >
+                    Cut-off
+                  </Link>
+                </>
+              ) : null}
+              <form action="/auth/logout" method="post">
+                <button type="submit" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">
+                  Logout
+                </button>
+              </form>
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full text-primary md:hidden"
+                  aria-label="Menu"
                 >
-                  Kelola User
-                </Link>
-                <Link
-                  href="/admin/meal-cutoff"
-                  className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
-                >
-                  Cut-off
-                </Link>
-              </>
-            ) : null}
-            <form action="/auth/logout" method="post">
-              <button type="submit" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">
-                Logout
-              </button>
-            </form>
+                  <Icon name="menu" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {role === "admin" ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/users">Kelola User</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/meal-cutoff">Cut-off</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+                <form action="/auth/logout" method="post">
+                  <DropdownMenuItem asChild variant="destructive">
+                    <button type="submit" className="w-full text-left">
+                      Logout
+                    </button>
+                  </DropdownMenuItem>
+                </form>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
