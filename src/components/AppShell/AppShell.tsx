@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { Icon } from "@/components/Icon/Icon";
 import type { UserRole } from "@/types/profile";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 import styles from "./AppShell.module.css";
 import { getNavItems } from "./nav-items";

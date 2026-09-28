@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/Icon/Icon";
 import { Input } from "@/components/ui/input";
 import type { PatientWithDelivery } from "@/types/patient";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = {
   pending: { label: "Pending", icon: "schedule", className: "bg-surface-container-highest text-on-surface-variant" },

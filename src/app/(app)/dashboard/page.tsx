@@ -5,7 +5,7 @@ import { ALLERGY_OPTIONS, DIET_KHUSUS_OPTIONS, FOOD_FORM_OPTIONS } from "@/const
 import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { DistributionStatus, PatientWithDelivery } from "@/types/patient";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 import { Icon } from "@/components/Icon/Icon";
 import { DashboardFilters } from "@/components/DashboardFilters/DashboardFilters";

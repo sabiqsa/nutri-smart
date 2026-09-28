@@ -1,4 +1,4 @@
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 type IconProps = {
   /** Material Symbols ligature name, e.g. "dashboard", "qr_code_scanner". */

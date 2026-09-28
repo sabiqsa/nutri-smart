@@ -4,11 +4,12 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useState } from "react";
 
 import { Icon } from "@/components/Icon/Icon";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ROOM_OPTIONS } from "@/constants/patient-options";
 import { createClient } from "@/libs/supabase/client";
 import type { PatientWithDelivery } from "@/types/patient";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { parsePatientQrValue } from "@/utils/patient-qr";
 
 type ScanState =
@@ -173,13 +174,9 @@ export function ScanView() {
             <p className="mb-6 text-sm text-on-surface-variant">
               RM di QR ini gak ketemu di sistem. Pastiin QR nempel di pasien yang bener.
             </p>
-            <button
-              type="button"
-              onClick={rescan}
-              className="h-12 w-full rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98]"
-            >
+            <Button type="button" size="lg" className="h-12 w-full font-semibold" onClick={rescan}>
               Scan Lagi
-            </button>
+            </Button>
             <div className="h-8" />
           </div>
         ) : null}
@@ -202,13 +199,9 @@ export function ScanView() {
               ruangan <strong>{state.patient.room}</strong>, bukan tujuan saat ini ({targetRoom}).
             </p>
             <p className="mb-6 text-sm font-semibold text-error">Status distribusi TIDAK diupdate.</p>
-            <button
-              type="button"
-              onClick={rescan}
-              className="h-12 w-full rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98]"
-            >
+            <Button type="button" size="lg" className="h-12 w-full font-semibold" onClick={rescan}>
               Scan Lagi
-            </button>
+            </Button>
             <div className="h-8" />
           </div>
         ) : null}
@@ -222,13 +215,9 @@ export function ScanView() {
             <p className="mb-6 text-sm text-on-surface-variant">
               {state.patient.patient_name ?? state.patient.medical_record_number} dikonfirmasi.
             </p>
-            <button
-              type="button"
-              onClick={rescan}
-              className="h-12 w-full rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98]"
-            >
+            <Button type="button" size="lg" className="h-12 w-full font-semibold" onClick={rescan}>
               Scan Lagi
-            </button>
+            </Button>
             <div className="h-8" />
           </div>
         ) : null}
@@ -264,22 +253,19 @@ export function ScanView() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button
+              <Button
                 type="button"
+                size="lg"
+                className="h-12 w-full gap-2 font-semibold"
                 onClick={handleConfirmDelivery}
                 disabled={confirming}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary font-semibold text-on-primary transition-all active:scale-[0.98] disabled:opacity-60"
               >
                 <Icon name="local_shipping" size={20} />
                 {confirming ? "Memproses..." : "Konfirmasi Pengantaran"}
-              </button>
-              <button
-                type="button"
-                onClick={rescan}
-                className="h-12 w-full rounded-xl font-medium text-on-surface-variant transition-colors hover:bg-surface-container"
-              >
+              </Button>
+              <Button type="button" variant="ghost" size="lg" className="h-12 w-full" onClick={rescan}>
                 Batal
-              </button>
+              </Button>
             </div>
             <div className="h-8" />
           </div>

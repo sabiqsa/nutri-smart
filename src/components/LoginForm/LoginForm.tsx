@@ -6,7 +6,7 @@ import { login } from "@/app/login/actions";
 import { Icon } from "@/components/Icon/Icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 import styles from "./LoginForm.module.css";
 

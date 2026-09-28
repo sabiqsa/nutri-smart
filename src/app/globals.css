@@ -208,15 +208,19 @@
 
   --radius-md: calc(var(--radius) * 0.8);
 
+  /* lg and xl are deliberately the same value (== --radius-card, 12px).
+     shadcn's default scale makes xl 1.4x lg, which silently made every
+     existing `rounded-xl` card (dashboard, patient list, search) rounder
+     than the `rounded-card`/`rounded-lg` form controls next to them. */
   --radius-lg: var(--radius);
 
-  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-xl: var(--radius);
 
-  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-2xl: 1rem;
 
-  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-3xl: 1.5rem;
 
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-4xl: 2rem;
 }
 
 /*
