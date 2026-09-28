@@ -24,7 +24,7 @@ export default async function AnalyticsPage() {
     day: "2-digit",
   }).format(new Date());
 
-  const [{ data: patients }, { data: snapshots }, { data: cutoffs }] = await Promise.all([
+  const [{ data: patients }, { data: snapshots }, { data: cutoffs }, { data: history }] = await Promise.all([
     supabase.from("patients").select("*, meal_deliveries(*)").returns<PatientWithDelivery[]>(),
     supabase
       .from("distribution_snapshots")
@@ -32,10 +32,29 @@ export default async function AnalyticsPage() {
       .eq("snapshot_date", today)
       .returns<DistributionSnapshot[]>(),
     supabase.from("meal_cutoffs").select("*").returns<MealCutoffRow[]>(),
+    // Last 7 days *before* today (today's already shown live above) — a
+    // plain list, not a date-picker/chart, per the "kalo sehari berat,
+    // seminggu juga gapapa" call: cheap to build, still gives a sense of
+    // trend without a new UI pattern.
+    supabase
+      .from("distribution_snapshots")
+      .select("*")
+      .lt("snapshot_date", today)
+      .order("snapshot_date", { ascending: false })
+      .limit(21)
+      .returns<DistributionSnapshot[]>(),
   ]);
 
   const snapshotByPeriod = new Map((snapshots ?? []).map((s) => [s.period, s]));
   const cutoffByPeriod = new Map((cutoffs ?? []).map((c) => [c.period, c]));
+
+  const historyByDate = new Map<string, DistributionSnapshot[]>();
+  for (const row of history ?? []) {
+    const rows = historyByDate.get(row.snapshot_date) ?? [];
+    rows.push(row);
+    historyByDate.set(row.snapshot_date, rows);
+  }
+  const historyDates = Array.from(historyByDate.keys()).sort((a, b) => (a < b ? 1 : -1));
 
   const all = patients ?? [];
   const total = all.length;
@@ -179,6 +198,58 @@ export default async function AnalyticsPage() {
             );
           })}
         </div>
+      </section>
+
+      {/* Riwayat 7 hari terakhir — plain list, bukan date-picker/chart
+          (scoped-down per user call: cukup buat liat tren mingguan). */}
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Riwayat Rekap (7 Hari Terakhir)</h2>
+        {historyDates.length > 0 ? (
+          <p className="text-xs text-on-surface-variant">
+            Format: <span className="text-secondary">Berhasil</span>/<span className="text-primary">Pending</span>
+            /Tidak Dibagikan, dari Total
+          </p>
+        ) : null}
+        {historyDates.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">Belum ada histori — baru mulai kepake fitur ini.</p>
+        ) : (
+          <div className="space-y-2">
+            {historyDates.map((date) => (
+              <div
+                key={date}
+                className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4"
+              >
+                <p className="mb-2 text-sm font-semibold">
+                  {new Date(`${date}T00:00:00Z`).toLocaleDateString("id-ID", {
+                    timeZone: APP_TIMEZONE,
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  })}
+                </p>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  {MEAL_PERIOD_ORDER.map((period) => {
+                    const snapshot = (historyByDate.get(date) ?? []).find((s) => s.period === period);
+                    return (
+                      <div key={period} className="rounded-lg bg-surface-container p-2">
+                        <p className="mb-1 font-medium text-primary">{MEAL_PERIOD_LABEL[period]}</p>
+                        {!snapshot ? (
+                          <p className="text-on-surface-variant">-</p>
+                        ) : (
+                          <p className="text-on-surface-variant">
+                            <span className="text-secondary">{snapshot.berhasil_count}</span>/
+                            <span className="text-primary">{snapshot.pending_count}</span>/
+                            <span>{snapshot.tidak_dibagikan_count}</span> dari {snapshot.total_count}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Error log */}

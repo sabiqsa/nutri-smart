@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { Badge } from "@/components/Badge/Badge";
 import { MarkNotDistributedForm } from "@/components/MarkNotDistributedForm/MarkNotDistributedForm";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
+import { APP_TIMEZONE } from "@/config/meal-cutoff";
 import { canEditPatients, canViewDietHistory, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
@@ -141,7 +142,9 @@ export default async function PatientDetailPage({
                   <div key={entry.id} className="rounded-card border border-outline-variant bg-surface-container-lowest p-3 text-sm">
                     <div className="flex items-center justify-between text-xs text-on-surface-variant">
                       <span className="uppercase">{entry.changed_by_role ?? "-"}</span>
-                      <span>{new Date(entry.created_at).toLocaleString("id-ID")}</span>
+                      <span>
+                        {new Date(entry.created_at).toLocaleString("id-ID", { timeZone: APP_TIMEZONE })}
+                      </span>
                     </div>
                     <div className="mt-1">{entry.summary}</div>
                   </div>
