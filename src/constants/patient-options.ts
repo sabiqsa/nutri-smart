@@ -63,6 +63,12 @@ export const DIET_KHUSUS_OPTIONS = [
 
 export const FOOD_FORM_OPTIONS = ["CAIR", "SARING", "BUBUR", "TIM", "BIASA", "BIASA ANAK"] as const;
 
+// Frekuensi makan (per hari) — dipake buat field umum "Frekuensi Makan" dan
+// field khusus "Frekuensi Makanan Cair". SelectField kerjanya pake string
+// value, jadi angka di sini ditulis sebagai string (actions.ts yang parse
+// balik jadi integer sebelum masuk DB).
+export const FREKUENSI_MAKAN_OPTIONS = ["2", "3", "4", "5", "6", "7", "8"] as const;
+
 export const CUSTOM_LIQUID_OPTION = "Susu Formula (Pribadi)";
 
 export const FOOD_FORM_CAIR_OPTIONS = [

@@ -287,4 +287,15 @@ body {
   html {
     @apply font-sans;
   }
+
+  /* Native <button> defaults to cursor:default in every browser — only <a>
+     gets pointer for free. shadcn's Button doesn't set cursor either,
+     so every button in the app (shadcn or raw <button>) looked unclickable
+     on desktop. Menu/option rows (Select, DropdownMenu) are deliberately
+     cursor-default via their own classes — those are divs with
+     role="option"/"menuitem", not <button>, so this doesn't touch them. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }

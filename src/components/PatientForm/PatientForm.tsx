@@ -19,6 +19,7 @@ import {
   FOOD_FORM_OPTIONS,
   FOOD_FORM_SARING_OPTIONS,
   FOOD_RESTRICTION_OPTIONS,
+  FREKUENSI_MAKAN_OPTIONS,
   ROOM_OPTIONS,
 } from "@/constants/patient-options";
 import type { Patient } from "@/types/patient";
@@ -56,6 +57,28 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
   const [allergyDetails, setAllergyDetails] = useState<Map<string, string>>(initialAllergyMap);
 
   const [isSpecialRequest, setIsSpecialRequest] = useState(initial?.is_special_request ?? false);
+  const [specialRequestNote, setSpecialRequestNote] = useState(initial?.special_request_note ?? "");
+
+  // React's form Actions call the underlying native form.reset() once the
+  // action settles — regardless of whether it returned an error — which
+  // wipes every *uncontrolled* field (see react.dev: form actions reset
+  // uncontrolled fields on completion). That's the actual bug behind "form
+  // clears on a duplicate-RM error": it was never about useActionState vs a
+  // manual handler, every plain text field was uncontrolled and always
+  // getting wiped. Fix: make every field controlled by React state, which
+  // the next render forces back over whatever the native reset just did.
+  const [rmValue, setRmValue] = useState(initial?.medical_record_number ?? "");
+  // "Adjust state when a prop changes" pattern (react.dev/reference/react/useState)
+  // — compared during render, not in an effect, so clearing RM only happens
+  // once per new error instance instead of on every re-render.
+  const [lastHandledError, setLastHandledError] = useState<string | void | null>(null);
+  if (error !== lastHandledError) {
+    setLastHandledError(error);
+    if (error && error.toLowerCase().includes("rm")) {
+      setRmValue("");
+    }
+  }
+  const isRmError = !!error && error.toLowerCase().includes("rm");
 
   function toggleAllergy(type: string, checked: boolean) {
     setCheckedAllergies((prev) => {
@@ -72,12 +95,20 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
 
       <SelectField name="room" label="Ruangan" defaultValue={initial?.room ?? ""} options={ROOM_OPTIONS} required />
       <TextField name="bed" label="Bed" defaultValue={initial?.bed ?? ""} />
-      <TextField
-        name="medical_record_number"
-        label="No. RM"
-        defaultValue={initial?.medical_record_number ?? ""}
-        required
-      />
+      <div className="flex flex-col gap-1">
+        <Label htmlFor="medical_record_number">
+          No. RM<span className="text-error"> *</span>
+        </Label>
+        <Input
+          id="medical_record_number"
+          name="medical_record_number"
+          value={rmValue}
+          onChange={(e) => setRmValue(e.target.value)}
+          required
+          aria-invalid={isRmError}
+          className={isRmError ? "border-error focus-visible:border-error focus-visible:ring-error/50" : undefined}
+        />
+      </div>
       <TextField name="patient_name" label="Nama Pasien" defaultValue={initial?.patient_name ?? ""} />
       <TextField
         name="date_of_birth"
@@ -91,6 +122,13 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
         label="Diet Utama"
         defaultValue={initial?.diet_type ?? ""}
         options={DIET_UTAMA_OPTIONS}
+      />
+
+      <SelectField
+        name="frekuensi_makan"
+        label="Frekuensi Makan"
+        defaultValue={initial?.frekuensi_makan != null ? String(initial.frekuensi_makan) : ""}
+        options={FREKUENSI_MAKAN_OPTIONS}
       />
 
       <CheckboxGroup
@@ -128,6 +166,24 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
               defaultValue={customLiquid}
             />
           ) : null}
+          <SelectField
+            name="food_form_cair_frekuensi"
+            label="Frekuensi Makanan Cair"
+            defaultValue={initial?.food_form_cair_frekuensi != null ? String(initial.food_form_cair_frekuensi) : ""}
+            options={FREKUENSI_MAKAN_OPTIONS}
+          />
+          <TextField
+            name="food_form_cair_kalori"
+            label="Kalori Makanan Cair (KKAL)"
+            type="number"
+            defaultValue={initial?.food_form_cair_kalori != null ? String(initial.food_form_cair_kalori) : ""}
+          />
+          <TextField
+            name="food_form_cair_ml"
+            label="ML Makanan Cair"
+            type="number"
+            defaultValue={initial?.food_form_cair_ml != null ? String(initial.food_form_cair_ml) : ""}
+          />
         </div>
       ) : null}
 
@@ -149,7 +205,7 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
               <Checkbox
                 name="allergies"
                 value={option}
-                defaultChecked={checkedAllergies.has(option)}
+                checked={checkedAllergies.has(option)}
                 onCheckedChange={(checked) => toggleAllergy(option, checked === true)}
               />
               {option}
@@ -159,7 +215,7 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
                 type="text"
                 name={`allergy_detail_${option}`}
                 placeholder="Keterangan (contoh: gatal ringan)"
-                defaultValue={allergyDetails.get(option) ?? ""}
+                value={allergyDetails.get(option) ?? ""}
                 onChange={(e) => setAllergyDetails((prev) => new Map(prev).set(option, e.target.value))}
                 className="ml-6 w-auto"
               />
@@ -189,7 +245,8 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
           <Textarea
             name="special_request_note"
             placeholder="Jelasin permintaan khususnya — muncul di Pemberitahuan Mendesak"
-            defaultValue={initial?.special_request_note ?? ""}
+            value={specialRequestNote}
+            onChange={(e) => setSpecialRequestNote(e.target.value)}
             rows={2}
             required
           />
@@ -224,10 +281,24 @@ function TextField({
   type?: string;
   required?: boolean;
 }) {
+  // Controlled (not defaultValue) so a form-action settling doesn't wipe it
+  // via React's native form.reset() — see the note in PatientForm above.
+  const [value, setValue] = useState(defaultValue ?? "");
+
   return (
     <div className="flex flex-col gap-1">
-      <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} type={type} defaultValue={defaultValue} required={required} />
+      <Label htmlFor={name}>
+        {label}
+        {required ? <span className="text-error"> *</span> : null}
+      </Label>
+      <Input
+        id={name}
+        name={name}
+        type={type}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        required={required}
+      />
     </div>
   );
 }
@@ -241,10 +312,12 @@ function TextAreaField({
   label: string;
   defaultValue?: string;
 }) {
+  const [value, setValue] = useState(defaultValue ?? "");
+
   return (
     <div className="flex flex-col gap-1">
       <Label htmlFor={name}>{label}</Label>
-      <Textarea id={name} name={name} defaultValue={defaultValue} rows={3} />
+      <Textarea id={name} name={name} value={value} onChange={(e) => setValue(e.target.value)} rows={3} />
     </div>
   );
 }
@@ -264,7 +337,8 @@ function SelectField({
   required?: boolean;
   onChange?: (value: string) => void;
 }) {
-  const [value, setValue] = useState(defaultValue || UNSET);
+  const [initialValue] = useState(defaultValue || UNSET);
+  const [value, setValue] = useState(initialValue);
 
   return (
     <div className="flex flex-col gap-1">
@@ -275,6 +349,17 @@ function SelectField({
       <Select
         value={value}
         onValueChange={(v) => {
+          // Radix always renders its own hidden native <select> inside the
+          // form for form-integration (SelectBubbleInput), wired so ANY
+          // native change on it forwards straight to onValueChange — that
+          // includes React's own form-action-settle reset, which targets
+          // that native element (it's genuinely uncontrolled — `defaultValue`
+          // frozen at mount) and snaps it back to its mount-time value,
+          // firing a change event indistinguishable from a real click. Guard:
+          // if we're currently showing something OTHER than that frozen
+          // mount-time value and suddenly get told to revert to exactly it,
+          // treat it as that spurious echo, not a genuine re-selection.
+          if (v === initialValue && value !== initialValue) return;
           setValue(v);
           onChange?.(v === UNSET ? "" : v);
         }}
@@ -310,12 +395,28 @@ function CheckboxGroup({
   options: readonly string[];
   defaultChecked: string[];
 }) {
+  // Controlled, same reasoning as TextField — a native form.reset() after
+  // any submit would otherwise silently uncheck these.
+  const [checked, setChecked] = useState<Set<string>>(new Set(defaultChecked));
+
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="mb-1 text-sm font-medium text-on-surface">{legend}</legend>
       {options.map((option) => (
         <label key={option} className="flex items-center gap-2 text-sm">
-          <Checkbox name={name} value={option} defaultChecked={defaultChecked.includes(option)} />
+          <Checkbox
+            name={name}
+            value={option}
+            checked={checked.has(option)}
+            onCheckedChange={(isChecked) =>
+              setChecked((prev) => {
+                const next = new Set(prev);
+                if (isChecked) next.add(option);
+                else next.delete(option);
+                return next;
+              })
+            }
+          />
           {option}
         </label>
       ))}

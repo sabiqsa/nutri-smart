@@ -4,24 +4,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Icon } from "@/components/Icon/Icon";
+import { LogoutButton } from "@/components/LogoutButton/LogoutButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Patient } from "@/types/patient";
 import type { UserRole } from "@/types/profile";
 import { cn } from "@/lib/utils";
 
 import styles from "./AppShell.module.css";
 import { getNavItems } from "./nav-items";
 
+type UrgentNotification = Pick<Patient, "id" | "patient_name" | "medical_record_number" | "special_request_note">;
+
 type AppShellProps = {
   children: React.ReactNode;
   fullName: string | null;
   role: UserRole;
+  urgentNotifications: UrgentNotification[];
 };
 
 const ROLE_LABEL: Record<UserRole, string> = {
@@ -32,7 +38,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
   admin: "Admin",
 };
 
-export function AppShell({ children, fullName, role }: AppShellProps) {
+export function AppShell({ children, fullName, role, urgentNotifications }: AppShellProps) {
   const pathname = usePathname();
   const navItems = getNavItems(role);
 
@@ -79,12 +85,46 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="flex size-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-container"
-            >
-              <Icon name="notifications" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="relative rounded-full text-primary"
+                  aria-label="Pemberitahuan Mendesak"
+                >
+                  <Icon name="notifications" />
+                  {urgentNotifications.length > 0 ? (
+                    <span className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-on-error">
+                      {urgentNotifications.length > 9 ? "9+" : urgentNotifications.length}
+                    </span>
+                  ) : null}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72">
+                <DropdownMenuLabel>Pemberitahuan Mendesak</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {urgentNotifications.length === 0 ? (
+                  <p className="px-1.5 py-2 text-sm text-on-surface-variant">
+                    Gak ada pemberitahuan mendesak saat ini.
+                  </p>
+                ) : (
+                  urgentNotifications.map((patient) => (
+                    <DropdownMenuItem key={patient.id} asChild className="flex-col items-start gap-0.5">
+                      <Link href={`/patients/${patient.id}`}>
+                        <span className="text-sm font-medium">
+                          {patient.patient_name ?? patient.medical_record_number}
+                        </span>
+                        <span className="line-clamp-2 text-xs text-on-surface-variant">
+                          {patient.special_request_note}
+                        </span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Desktop: plain links. Mobile: collapsed into the hamburger
                 below — this row was overflowing/cramped next to the bell
@@ -104,12 +144,16 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
                   >
                     Cut-off
                   </Link>
+                  <Link
+                    href="/admin/settings"
+                    className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
+                  >
+                    Pengaturan
+                  </Link>
                 </>
               ) : null}
               <form action="/auth/logout" method="post">
-                <button type="submit" className="text-sm font-medium text-on-surface-variant hover:text-on-surface">
-                  Logout
-                </button>
+                <LogoutButton className="text-sm font-medium text-on-surface-variant hover:text-on-surface" />
               </form>
             </div>
 
@@ -134,14 +178,15 @@ export function AppShell({ children, fullName, role }: AppShellProps) {
                     <DropdownMenuItem asChild>
                       <Link href="/admin/meal-cutoff">Cut-off</Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/settings">Pengaturan</Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
                 ) : null}
                 <form action="/auth/logout" method="post">
                   <DropdownMenuItem asChild variant="destructive">
-                    <button type="submit" className="w-full text-left">
-                      Logout
-                    </button>
+                    <LogoutButton className="w-full text-left" />
                   </DropdownMenuItem>
                 </form>
               </DropdownMenuContent>

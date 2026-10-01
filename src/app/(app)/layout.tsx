@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/AppShell/AppShell";
-import { getCurrentProfile } from "@/libs/supabase/get-profile";
+import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
+import { createClient } from "@/libs/supabase/server";
+import type { Patient } from "@/types/patient";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   // Phase 2 (RBAC): proxy.ts already redirects unauthenticated requests to
@@ -28,8 +30,32 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     );
   }
 
+  // Pemberitahuan Mendesak lives in the header bell now (every page, not
+  // just Dashboard) — same gate Dashboard's metrics used to have (Perawat
+  // doesn't get rekap-porsi access, so no notifications either).
+  let urgentNotifications: Pick<Patient, "id" | "patient_name" | "medical_record_number" | "special_request_note">[] =
+    [];
+  if (canViewMetrics(profile.role)) {
+    const supabase = await createClient();
+    const { data: settings } = await supabase
+      .from("app_settings")
+      .select("urgent_notification_hours")
+      .eq("id", "default")
+      .single();
+    const urgentHours = settings?.urgent_notification_hours ?? 12;
+    const cutoffIso = new Date(new Date().getTime() - urgentHours * 60 * 60 * 1000).toISOString();
+
+    const { data } = await supabase
+      .from("patients")
+      .select("id, patient_name, medical_record_number, special_request_note")
+      .eq("is_special_request", true)
+      .gte("special_request_flagged_at", cutoffIso)
+      .order("special_request_flagged_at", { ascending: false });
+    urgentNotifications = data ?? [];
+  }
+
   return (
-    <AppShell fullName={profile.full_name} role={profile.role}>
+    <AppShell fullName={profile.full_name} role={profile.role} urgentNotifications={urgentNotifications}>
       {children}
     </AppShell>
   );

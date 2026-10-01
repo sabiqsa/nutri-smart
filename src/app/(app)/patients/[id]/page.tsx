@@ -3,15 +3,17 @@ import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 
 import { Badge } from "@/components/Badge/Badge";
+import { ClosePatientButton } from "@/components/ClosePatientButton/ClosePatientButton";
 import { MarkNotDistributedForm } from "@/components/MarkNotDistributedForm/MarkNotDistributedForm";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { APP_TIMEZONE } from "@/config/meal-cutoff";
-import { canEditPatients, canViewDietHistory, getCurrentProfile } from "@/libs/supabase/get-profile";
+import { canDeletePatients, canEditPatients, canViewDietHistory, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { PatientWithDelivery } from "@/types/patient";
 import { buildPatientQrValue } from "@/utils/patient-qr";
 import { canPrintLabel, canScanDistribution } from "@/utils/roles";
 
+import { closePatient } from "../actions";
 import { markNotDistributed } from "../delivery-actions";
 
 const STATUS_LABEL = {
@@ -77,6 +79,12 @@ export default async function PatientDetailPage({
                 Edit
               </Link>
             ) : null}
+            {canDeletePatients(profile?.role ?? null) ? (
+              <ClosePatientButton
+                action={closePatient.bind(null, patient.id)}
+                patientName={patient.patient_name ?? patient.medical_record_number}
+              />
+            ) : null}
           </div>
         </div>
 
@@ -112,8 +120,21 @@ export default async function PatientDetailPage({
           label="Diet Khusus"
           value={patient.special_diet && patient.special_diet.length > 0 ? patient.special_diet.join(", ") : "-"}
         />
+        <Field label="Frekuensi Makan" value={patient.frekuensi_makan != null ? `${patient.frekuensi_makan}x/hari` : "-"} />
         <Field label="Bentuk Makanan" value={patient.food_form ?? "-"} />
         <Field label="Detail Bentuk Makanan" value={patient.food_form_detail ?? "-"} />
+        {patient.food_form === "CAIR" ? (
+          <Field
+            label="Detail Makanan Cair"
+            value={[
+              patient.food_form_cair_frekuensi != null ? `${patient.food_form_cair_frekuensi}x/hari` : null,
+              patient.food_form_cair_kalori != null ? `${patient.food_form_cair_kalori} KKAL` : null,
+              patient.food_form_cair_ml != null ? `${patient.food_form_cair_ml} ML` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || "-"}
+          />
+        ) : null}
         <Field
           label="Alergi"
           value={

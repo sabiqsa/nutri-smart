@@ -14,11 +14,16 @@ export type Patient = {
   special_diet: string[] | null;
   food_form: string | null;
   food_form_detail: string | null;
+  frekuensi_makan: number | null;
+  food_form_cair_frekuensi: number | null;
+  food_form_cair_kalori: number | null;
+  food_form_cair_ml: number | null;
   allergies: AllergyEntry[];
   food_restrictions: string[] | null;
   notes: string | null;
   is_special_request: boolean;
   special_request_note: string | null;
+  special_request_flagged_at: string | null;
   created_at: string;
   updated_at: string;
 };

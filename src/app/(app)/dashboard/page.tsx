@@ -56,7 +56,6 @@ export default async function DashboardPage({
   const foodFormCounts: Record<string, number> = {};
   const dietKhususCounts: Record<string, number> = {};
   const allergyCounts: Record<string, number> = {};
-  const alerts: PatientWithDelivery[] = [];
   const specialRequests: PatientWithDelivery[] = [];
 
   for (const patient of patients) {
@@ -73,9 +72,9 @@ export default async function DashboardPage({
     for (const allergy of patient.allergies) {
       allergyCounts[allergy.type] = (allergyCounts[allergy.type] ?? 0) + 1;
     }
-    if (patient.allergies.length > 0 || delivery?.mismatch) {
-      alerts.push(patient);
-    }
+    // Pemberitahuan Mendesak (the time-boxed, "last 12h" version of this)
+    // moved to the header notification bell — see (app)/layout.tsx +
+    // AppShell. This list stays the full, untouched history.
     if (patient.is_special_request) {
       specialRequests.push(patient);
     }
@@ -159,46 +158,6 @@ export default async function DashboardPage({
 
       {/* Alergi */}
       <RekapPanel title="Rekap Alergi" counts={allergyCounts} options={ALLERGY_OPTIONS} total={total} />
-
-      {/* Urgent alerts */}
-      <section className="space-y-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Icon name="warning" filled className="text-error" />
-          Pemberitahuan Mendesak
-        </h2>
-        {alerts.length === 0 ? (
-          <p className="text-sm text-on-surface-variant">Gak ada alert saat ini.</p>
-        ) : (
-          <div className="space-y-2">
-            {alerts.slice(0, 5).map((patient) => (
-              <Link
-                key={patient.id}
-                href={`/patients/${patient.id}`}
-                className="flex items-center gap-3 rounded-lg border-l-4 border-error bg-error-container/30 p-4"
-              >
-                <span className="rounded-full bg-error-container p-2">
-                  <Icon name="edit_notifications" className="text-on-error-container" size={20} />
-                </span>
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium">{patient.patient_name ?? patient.medical_record_number}</h3>
-                  <p className="text-sm">
-                    {patient.allergies.length > 0 ? (
-                      <>
-                        Alergi:{" "}
-                        <span className="font-bold text-error">
-                          {patient.allergies.map((a) => a.type).join(", ")}
-                        </span>
-                      </>
-                    ) : (
-                      "Diet mismatch terdeteksi"
-                    )}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
 
       {/* Permintaan Khusus */}
       <section className="space-y-3">
