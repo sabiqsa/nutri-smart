@@ -4,28 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Icon } from "@/components/Icon/Icon";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { Input } from "@/components/ui/input";
 import type { PatientWithDelivery } from "@/types/patient";
 import { cn } from "@/lib/utils";
-
-const STATUS_CONFIG = {
-  pending: { label: "Pending", icon: "schedule", className: "bg-surface-container-highest text-on-surface-variant" },
-  ready: {
-    label: "Siap Kirim",
-    icon: "check_circle",
-    className: "bg-secondary-container text-on-secondary-container",
-  },
-  delivered: {
-    label: "Terkirim",
-    icon: "check_circle",
-    className: "bg-secondary-container text-on-secondary-container",
-  },
-  not_distributed: {
-    label: "Tidak Dibagikan",
-    icon: "block",
-    className: "bg-outline-variant text-on-surface",
-  },
-} as const;
 
 export function PatientListView({
   patients,
@@ -54,108 +36,120 @@ export function PatientListView({
   }, [patients, query, ward]);
 
   return (
-    <div>
-      <div className="relative mb-3">
+    <div className="flex flex-col gap-4">
+      <div className="relative">
         <Icon
           name="search"
           className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-on-surface-variant"
         />
         <Input
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search Patient or Bed..."
-          className="h-12 rounded-xl pr-4 pl-12 text-sm focus-visible:border-primary focus-visible:ring-primary/50"
+          aria-label="Cari pasien, bed, atau No. RM"
+          className="h-12 rounded-lg bg-surface-container-lowest pr-4 pl-12 text-base md:text-sm"
         />
       </div>
 
       {wards.length > 1 ? (
-        <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1">
-          <button
-            type="button"
-            onClick={() => setWard(null)}
-            className={cn(
-              "shrink-0 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
-              ward === null
-                ? "bg-primary text-on-primary shadow-sm"
-                : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest",
-            )}
-          >
-            Semua
-          </button>
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
+          <WardChip label="Semua" active={ward === null} onClick={() => setWard(null)} />
           {wards.map((w) => (
-            <button
-              key={w}
-              type="button"
-              onClick={() => setWard(w)}
-              className={cn(
-                "shrink-0 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
-                ward === w
-                  ? "bg-primary text-on-primary shadow-sm"
-                  : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest",
-              )}
-            >
-              {w}
-            </button>
+            <WardChip key={w} label={w} active={ward === w} onClick={() => setWard(w)} />
           ))}
         </div>
       ) : null}
 
-      <div className="mb-3 flex items-center justify-between">
+      <div className="flex items-baseline justify-between">
         <h2 className="text-lg font-semibold">{ward ?? "Semua Pasien"}</h2>
-        <span className="rounded-full bg-surface-container-high px-3 py-1 text-xs text-on-surface-variant">
-          {filtered.length} Patients
-        </span>
+        <span className="text-sm text-on-surface-variant tabular-nums">{filtered.length} pasien</span>
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-on-surface-variant">Gak ada pasien ketemu.</p>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((patient) => (
-            <PatientCard key={patient.id} patient={patient} canScan={canScan} />
-          ))}
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-outline-variant px-6 py-12 text-center">
+          <Icon name="person_search" size={32} className="text-outline" />
+          <p className="text-sm font-medium">Gak ada pasien ketemu.</p>
+          {query || ward ? (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setWard(null);
+              }}
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Hapus pencarian
+            </button>
+          ) : null}
         </div>
+      ) : (
+        <ul className="grid grid-cols-1 gap-3">
+          {filtered.map((patient) => (
+            <li key={patient.id}>
+              <PatientCard patient={patient} />
+            </li>
+          ))}
+        </ul>
       )}
 
       {canScan ? (
         <Link
           href="/scan"
-          className="fixed right-6 bottom-24 z-30 flex size-16 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xl transition-transform active:scale-95"
+          aria-label="Scan QR pasien"
+          className="fixed right-4 bottom-24 z-30 flex size-14 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-floating transition-transform hover:bg-primary-container active:scale-95 md:right-8 md:bottom-8"
         >
-          <Icon name="qr_code_scanner" size={32} />
+          <Icon name="qr_code_scanner" size={28} />
         </Link>
       ) : null}
     </div>
   );
 }
 
-function PatientCard({ patient, canScan }: { patient: PatientWithDelivery; canScan: boolean }) {
-  const status = STATUS_CONFIG[patient.meal_deliveries[0]?.status ?? "pending"];
+function WardChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+        active
+          ? "border-primary bg-primary text-on-primary"
+          : "border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-outline hover:text-on-surface",
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+function PatientCard({ patient }: { patient: PatientWithDelivery }) {
+  const status = patient.meal_deliveries[0]?.status ?? "pending";
   const highAlert = !!patient.meal_deliveries[0]?.mismatch;
+  const allergies = patient.allergies.map((a) => a.type).join(", ");
 
   return (
     <Link
       href={`/patients/${patient.id}`}
       className={cn(
-        "relative flex items-center gap-4 overflow-hidden rounded-xl border bg-surface-container-lowest p-4 transition-shadow hover:shadow-sm",
-        highAlert ? "border-error" : "border-outline-variant",
+        "group relative flex items-center gap-4 overflow-hidden rounded-xl border bg-surface-container-lowest p-3 pr-4 transition-[border-color,box-shadow] hover:shadow-raised md:p-4",
+        highAlert ? "border-error" : "border-outline-variant hover:border-outline",
       )}
     >
-      {highAlert ? <div className="absolute top-0 left-0 h-full w-1 bg-error" /> : null}
+      {highAlert ? <div className="absolute inset-y-0 left-0 w-1 bg-error" /> : null}
 
       <div
         className={cn(
-          "flex size-16 shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg border p-0.5",
-          highAlert
-            ? "border-error-container bg-error-container text-on-error-container"
-            : "border-outline-variant bg-surface-container-high",
+          "flex size-16 shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg p-0.5",
+          highAlert ? "bg-error-container text-on-error-container" : "bg-surface-container text-on-surface-variant",
         )}
       >
-        <span className="text-xs">Bed</span>
+        <span className="text-[11px] font-medium">Bed</span>
         <span
           className={cn(
-            "line-clamp-2 w-full text-center leading-tight font-bold wrap-break-word",
-            (patient.bed?.length ?? 0) > 4 ? "text-xs" : "text-lg",
+            "line-clamp-2 w-full text-center leading-tight font-bold wrap-break-word tabular-nums",
+            (patient.bed?.length ?? 0) > 4 ? "text-xs" : "text-xl",
             highAlert ? "text-error" : "text-primary",
           )}
         >
@@ -163,42 +157,33 @@ function PatientCard({ patient, canScan }: { patient: PatientWithDelivery; canSc
         </span>
       </div>
 
-      <div className="min-w-0 grow">
+      <div className="flex min-w-0 grow flex-col gap-1.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="truncate text-base font-semibold">{patient.patient_name ?? "(tanpa nama)"}</h3>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-semibold">{patient.patient_name ?? "(tanpa nama)"}</h3>
+            <p className="truncate text-sm text-on-surface-variant">
+              {patient.room} · {patient.diet_type ?? "-"}
+            </p>
+          </div>
           {highAlert ? (
-            <span className="flex shrink-0 items-center gap-1 rounded-full bg-error px-2 py-0.5 text-[10px] font-bold tracking-wider text-on-error uppercase">
-              <Icon name="warning" size={12} />
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-error px-2 py-0.5 text-[11px] font-bold text-on-error">
+              <Icon name="warning" filled size={14} />
               High Alert
-            </span>
-          ) : patient.allergies.length > 0 ? (
-            <span className="shrink-0 rounded-full bg-error-container px-2 py-0.5 text-[10px] font-bold tracking-wider text-on-error-container uppercase">
-              Allergy: {patient.allergies.map((a) => a.type).join(", ")}
             </span>
           ) : null}
         </div>
-        <p className="mb-2 text-sm text-on-surface-variant">{patient.diet_type ?? "-"}</p>
-        {highAlert && patient.allergies.length > 0 ? (
-          <p className="mb-2 text-xs font-bold text-error italic">
-            Allergy: {patient.allergies.map((a) => a.type).join(", ")}
-          </p>
-        ) : null}
-        <span className={cn("inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium", status.className)}>
-          <Icon name={status.icon} size={14} />
-          {status.label}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <StatusBadge status={status} />
+          {allergies ? (
+            <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-error-container px-2.5 py-1 text-xs font-semibold text-on-error-container">
+              <Icon name="emergency" size={14} />
+              <span className="truncate">Alergi: {allergies}</span>
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      {canScan ? (
-        <span
-          className={cn(
-            "flex size-10 shrink-0 items-center justify-center rounded-full border",
-            highAlert ? "border-error text-error" : "border-outline-variant text-primary",
-          )}
-        >
-          <Icon name="qr_code_scanner" size={20} />
-        </span>
-      ) : null}
+      <Icon name="chevron_right" className="shrink-0 text-outline transition-transform group-hover:translate-x-0.5" />
     </Link>
   );
 }

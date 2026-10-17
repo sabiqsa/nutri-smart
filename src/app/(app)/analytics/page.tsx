@@ -84,23 +84,25 @@ export default async function AnalyticsPage() {
   const errorLog = all.filter((p) => p.meal_deliveries[0]?.mismatch);
 
   return (
-    <div className="space-y-6 p-4 pb-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
+      <h1 className="text-2xl font-bold">Monitoring</h1>
+
       {/* Progress */}
-      <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+      <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 md:p-6">
         <div className="mb-2 flex items-end justify-between">
           <div>
             <p className="text-sm text-on-surface-variant">Status Pengiriman Real-time</p>
-            <h2 className="text-2xl font-semibold text-primary">{completionPct}% Distribusi Selesai</h2>
+            <h2 className="text-2xl font-bold text-primary tabular-nums">{completionPct}% Distribusi Selesai</h2>
           </div>
-          <p className="mb-1 text-sm text-on-surface-variant">
+          <p className="mb-1 text-sm text-on-surface-variant tabular-nums">
             {deliveredCount}/{total} Pasien
           </p>
         </div>
-        <div className="h-4 w-full overflow-hidden rounded-full bg-surface-container-highest">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completionPct}%` }} />
+        <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-surface-container-high">
+          <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${completionPct}%` }} />
         </div>
         {wardStatus.length > 0 ? (
-          <div className="no-scrollbar mt-4 flex gap-3 overflow-x-auto pb-1">
+          <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1 md:flex-wrap">
             {wardStatus.map(({ room, done }) => (
               <span
                 key={room}
@@ -119,35 +121,32 @@ export default async function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Delivery time */}
-        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
-          <h3 className="text-lg font-semibold">Waktu Rata-rata per Pengantaran</h3>
+        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 md:p-6">
+          <h3 className="text-base font-semibold">Waktu Rata-rata per Pengantaran</h3>
           <p className="mb-4 text-sm text-on-surface-variant">Efisiensi Alur Kerja</p>
           {avgMinutes === null ? (
             <p className="text-sm text-on-surface-variant">Belum ada delivery selesai buat dihitung.</p>
           ) : (
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-primary">{avgMinutes}</span>
+              <span className="text-4xl font-bold text-primary tabular-nums">{avgMinutes}</span>
               <span className="text-sm text-on-surface-variant">menit rata-rata ({deliveryMinutes.length} delivery)</span>
             </div>
           )}
         </section>
 
         {/* Resource saving */}
-        <section className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-secondary-container p-6 text-on-secondary-container">
-          <div className="absolute -top-5 -right-5 opacity-10">
-            <Icon name="eco" filled className="text-[160px]" />
-          </div>
+        <section className="flex flex-col justify-between rounded-xl border border-secondary/20 bg-secondary-container/40 p-5 text-on-secondary-fixed-variant md:p-6">
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Icon name="eco" filled className="text-secondary" />
-              <h3 className="text-lg font-semibold">Dampak Ekologis</h3>
+              <h3 className="text-base font-semibold">Dampak Ekologis</h3>
             </div>
-            <p className="text-2xl leading-tight font-bold">
+            <p className="text-2xl leading-tight font-bold tabular-nums">
               Estimasi hemat {deliveredCount * PAPER_SHEETS_PER_DELIVERY} lembar kertas
             </p>
           </div>
           <p className="mt-4 text-sm opacity-80">
-            Estimasi (asumsi {PAPER_SHEETS_PER_DELIVERY} lembar label per delivery digital) — belum diukur langsung.
+            Estimasi (asumsi {PAPER_SHEETS_PER_DELIVERY} lembar label per delivery digital), belum diukur langsung.
           </p>
         </section>
       </div>
@@ -156,7 +155,7 @@ export default async function AnalyticsPage() {
           otomatis oleh cron di jam cut-off evaluasi (lihat
           src/libs/meal-cutoff/run-cutoff-job.ts), bukan hitungan live. */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Rekap Evaluasi Distribusi (Otomatis)</h2>
+        <h2 className="text-base font-semibold">Rekap Evaluasi Distribusi (Otomatis)</h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {MEAL_PERIOD_ORDER.map((period) => {
             const snapshot = snapshotByPeriod.get(period);
@@ -176,10 +175,10 @@ export default async function AnalyticsPage() {
                 </div>
                 {!snapshot ? (
                   <p className="text-xs text-on-surface-variant">
-                    Belum digenerate — nunggu jam cut-off evaluasi.
+                    Belum digenerate, nunggu jam cut-off evaluasi.
                   </p>
                 ) : (
-                  <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                  <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm tabular-nums">
                     <dt className="text-on-surface-variant">Berhasil</dt>
                     <dd className="text-right font-semibold text-secondary">{snapshot.berhasil_count}</dd>
                     <dt className="text-on-surface-variant">Pending</dt>
@@ -203,7 +202,7 @@ export default async function AnalyticsPage() {
       {/* Riwayat 7 hari terakhir — plain list, bukan date-picker/chart
           (scoped-down per user call: cukup buat liat tren mingguan). */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Riwayat Rekap (7 Hari Terakhir)</h2>
+        <h2 className="text-base font-semibold">Riwayat Rekap (7 Hari Terakhir)</h2>
         {historyDates.length > 0 ? (
           <p className="text-xs text-on-surface-variant">
             Format: <span className="text-secondary">Berhasil</span>/<span className="text-primary">Pending</span>
@@ -211,7 +210,7 @@ export default async function AnalyticsPage() {
           </p>
         ) : null}
         {historyDates.length === 0 ? (
-          <p className="text-sm text-on-surface-variant">Belum ada histori — baru mulai kepake fitur ini.</p>
+          <p className="text-sm text-on-surface-variant">Belum ada histori, baru mulai kepake fitur ini.</p>
         ) : (
           <div className="space-y-2">
             {historyDates.map((date) => (
@@ -227,7 +226,7 @@ export default async function AnalyticsPage() {
                     month: "long",
                   })}
                 </p>
-                <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="grid grid-cols-3 gap-2 text-xs tabular-nums">
                   {MEAL_PERIOD_ORDER.map((period) => {
                     const snapshot = (historyByDate.get(date) ?? []).find((s) => s.period === period);
                     return (
@@ -254,17 +253,27 @@ export default async function AnalyticsPage() {
 
       {/* Error log */}
       <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
-        <div className="flex items-center justify-between border-b border-outline-variant bg-error-container/20 p-6">
+        <div
+          className={
+            errorLog.length > 0
+              ? "flex items-center justify-between border-b border-outline-variant bg-error-container/30 px-5 py-4 md:px-6"
+              : "flex items-center justify-between border-b border-outline-variant px-5 py-4 md:px-6"
+          }
+        >
           <div className="flex items-center gap-3">
-            <Icon name="gpp_maybe" filled className="text-error" />
-            <h3 className="text-lg font-semibold text-on-error-container">
+            <Icon
+              name={errorLog.length > 0 ? "gpp_maybe" : "verified_user"}
+              filled
+              className={errorLog.length > 0 ? "text-error" : "text-secondary"}
+            />
+            <h3 className={errorLog.length > 0 ? "text-base font-semibold text-on-error-container" : "text-base font-semibold"}>
               {errorLog.length} Kesalahan Terdeteksi
             </h3>
           </div>
         </div>
         {errorLog.length === 0 ? (
-          <p className="p-6 text-sm text-on-surface-variant">
-            Belum ada mismatch tercatat — fitur logging mismatch belum dipakai aktif di flow scan.
+          <p className="px-5 py-4 text-sm text-on-surface-variant md:px-6">
+            Belum ada mismatch tercatat. Fitur logging mismatch belum dipakai aktif di flow scan.
           </p>
         ) : (
           <div className="divide-y divide-outline-variant">

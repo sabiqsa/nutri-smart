@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 
+import { Icon } from "@/components/Icon/Icon";
 import { MealPeriodIndicator } from "@/components/MealPeriodIndicator/MealPeriodIndicator";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,6 +24,7 @@ import {
   ROOM_OPTIONS,
 } from "@/constants/patient-options";
 import type { Patient } from "@/types/patient";
+import { cn } from "@/lib/utils";
 
 // Radix Select items can't have an empty-string value — this sentinel
 // stands in for "(pilih)"/unselected and gets translated back to "" (which
@@ -90,176 +92,203 @@ export function PatientForm({ action, initial, cutoffTimes }: PatientFormProps) 
   }
 
   return (
-    <form action={formAction} className="mx-auto flex w-full max-w-lg flex-col gap-4 p-4">
+    <form action={formAction} className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 md:px-6">
       {cutoffTimes ? <MealPeriodIndicator cutoffTimes={cutoffTimes} /> : null}
 
-      <SelectField name="room" label="Ruangan" defaultValue={initial?.room ?? ""} options={ROOM_OPTIONS} required />
-      <TextField name="bed" label="Bed" defaultValue={initial?.bed ?? ""} />
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="medical_record_number">
-          No. RM<span className="text-error"> *</span>
-        </Label>
-        <Input
-          id="medical_record_number"
-          name="medical_record_number"
-          value={rmValue}
-          onChange={(e) => setRmValue(e.target.value)}
-          required
-          aria-invalid={isRmError}
-          className={isRmError ? "border-error focus-visible:border-error focus-visible:ring-error/50" : undefined}
-        />
-      </div>
-      <TextField name="patient_name" label="Nama Pasien" defaultValue={initial?.patient_name ?? ""} />
-      <TextField
-        name="date_of_birth"
-        label="Tanggal Lahir"
-        type="date"
-        defaultValue={initial?.date_of_birth ?? ""}
-      />
-
-      <SelectField
-        name="diet_type"
-        label="Diet Utama"
-        defaultValue={initial?.diet_type ?? ""}
-        options={DIET_UTAMA_OPTIONS}
-      />
-
-      <SelectField
-        name="frekuensi_makan"
-        label="Frekuensi Makan"
-        defaultValue={initial?.frekuensi_makan != null ? String(initial.frekuensi_makan) : ""}
-        options={FREKUENSI_MAKAN_OPTIONS}
-      />
-
-      <CheckboxGroup
-        legend="Diet Khusus (opsional, boleh lebih dari satu)"
-        name="special_diet"
-        options={DIET_KHUSUS_OPTIONS}
-        defaultChecked={initial?.special_diet ?? []}
-      />
-
-      <SelectField
-        name="food_form"
-        label="Bentuk Makanan"
-        defaultValue={foodForm}
-        options={FOOD_FORM_OPTIONS}
-        onChange={(v) => {
-          setFoodForm(v);
-          setFoodFormDetail("");
-        }}
-        required
-      />
-
-      {foodForm === "CAIR" ? (
-        <div className="flex flex-col gap-2">
-          <SelectField
-            name="food_form_detail"
-            label="Opsi Makanan Cair"
-            defaultValue={foodFormDetail}
-            options={FOOD_FORM_CAIR_OPTIONS}
-            onChange={setFoodFormDetail}
-          />
-          {foodFormDetail === CUSTOM_LIQUID_OPTION ? (
-            <TextField
-              name="food_form_detail_custom"
-              label="Nama Susu Formula (Pribadi)"
-              defaultValue={customLiquid}
-            />
-          ) : null}
-          <SelectField
-            name="food_form_cair_frekuensi"
-            label="Frekuensi Makanan Cair"
-            defaultValue={initial?.food_form_cair_frekuensi != null ? String(initial.food_form_cair_frekuensi) : ""}
-            options={FREKUENSI_MAKAN_OPTIONS}
-          />
-          <TextField
-            name="food_form_cair_kalori"
-            label="Kalori Makanan Cair (KKAL)"
-            type="number"
-            defaultValue={initial?.food_form_cair_kalori != null ? String(initial.food_form_cair_kalori) : ""}
-          />
-          <TextField
-            name="food_form_cair_ml"
-            label="ML Makanan Cair"
-            type="number"
-            defaultValue={initial?.food_form_cair_ml != null ? String(initial.food_form_cair_ml) : ""}
+      <FormSection title="Identitas Pasien">
+        <SelectField name="room" label="Ruangan" defaultValue={initial?.room ?? ""} options={ROOM_OPTIONS} required />
+        <TextField name="bed" label="Bed" defaultValue={initial?.bed ?? ""} />
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="medical_record_number">
+            No. RM<span className="text-error"> *</span>
+          </Label>
+          <Input
+            id="medical_record_number"
+            name="medical_record_number"
+            value={rmValue}
+            onChange={(e) => setRmValue(e.target.value)}
+            required
+            aria-invalid={isRmError}
+            className={isRmError ? "border-error focus-visible:border-error focus-visible:ring-error/50" : undefined}
           />
         </div>
-      ) : null}
-
-      {foodForm === "SARING" ? (
-        <SelectField
-          name="food_form_detail"
-          label="Opsi Makanan Saring"
-          defaultValue={foodFormDetail}
-          options={FOOD_FORM_SARING_OPTIONS}
-          onChange={setFoodFormDetail}
+        <TextField name="patient_name" label="Nama Pasien" defaultValue={initial?.patient_name ?? ""} />
+        <TextField
+          name="date_of_birth"
+          label="Tanggal Lahir"
+          type="date"
+          defaultValue={initial?.date_of_birth ?? ""}
         />
-      ) : null}
+      </FormSection>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium text-on-surface">Alergi Makanan (opsional)</legend>
-        {ALLERGY_OPTIONS.map((option) => (
-          <div key={option} className="flex flex-col gap-1">
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox
-                name="allergies"
-                value={option}
-                checked={checkedAllergies.has(option)}
-                onCheckedChange={(checked) => toggleAllergy(option, checked === true)}
-              />
-              {option}
-            </label>
-            {checkedAllergies.has(option) ? (
-              <Input
-                type="text"
-                name={`allergy_detail_${option}`}
-                placeholder="Keterangan (contoh: gatal ringan)"
-                value={allergyDetails.get(option) ?? ""}
-                onChange={(e) => setAllergyDetails((prev) => new Map(prev).set(option, e.target.value))}
-                className="ml-6 w-auto"
+      <FormSection title="Kebutuhan Diet">
+        <SelectField
+          name="diet_type"
+          label="Diet Utama"
+          defaultValue={initial?.diet_type ?? ""}
+          options={DIET_UTAMA_OPTIONS}
+        />
+
+        <SelectField
+          name="frekuensi_makan"
+          label="Frekuensi Makan"
+          defaultValue={initial?.frekuensi_makan != null ? String(initial.frekuensi_makan) : ""}
+          options={FREKUENSI_MAKAN_OPTIONS}
+        />
+
+        <CheckboxGroup
+          legend="Diet Khusus (opsional, boleh lebih dari satu)"
+          name="special_diet"
+          options={DIET_KHUSUS_OPTIONS}
+          defaultChecked={initial?.special_diet ?? []}
+        />
+
+        <SelectField
+          name="food_form"
+          label="Bentuk Makanan"
+          defaultValue={foodForm}
+          options={FOOD_FORM_OPTIONS}
+          onChange={(v) => {
+            setFoodForm(v);
+            setFoodFormDetail("");
+          }}
+          required
+        />
+
+        {foodForm === "CAIR" ? (
+          <div className="grid grid-cols-1 gap-4 rounded-lg bg-surface-container-low p-4 sm:col-span-2 sm:grid-cols-2">
+            <SelectField
+              name="food_form_detail"
+              label="Opsi Makanan Cair"
+              defaultValue={foodFormDetail}
+              options={FOOD_FORM_CAIR_OPTIONS}
+              onChange={setFoodFormDetail}
+            />
+            {foodFormDetail === CUSTOM_LIQUID_OPTION ? (
+              <TextField
+                name="food_form_detail_custom"
+                label="Nama Susu Formula (Pribadi)"
+                defaultValue={customLiquid}
               />
             ) : null}
+            <SelectField
+              name="food_form_cair_frekuensi"
+              label="Frekuensi Makanan Cair"
+              defaultValue={initial?.food_form_cair_frekuensi != null ? String(initial.food_form_cair_frekuensi) : ""}
+              options={FREKUENSI_MAKAN_OPTIONS}
+            />
+            <TextField
+              name="food_form_cair_kalori"
+              label="Kalori Makanan Cair (KKAL)"
+              type="number"
+              defaultValue={initial?.food_form_cair_kalori != null ? String(initial.food_form_cair_kalori) : ""}
+            />
+            <TextField
+              name="food_form_cair_ml"
+              label="ML Makanan Cair"
+              type="number"
+              defaultValue={initial?.food_form_cair_ml != null ? String(initial.food_form_cair_ml) : ""}
+            />
           </div>
-        ))}
-      </fieldset>
+        ) : null}
 
-      <CheckboxGroup
-        legend="Pantangan Makanan (opsional, boleh lebih dari satu)"
-        name="food_restrictions"
-        options={FOOD_RESTRICTION_OPTIONS}
-        defaultChecked={initial?.food_restrictions ?? []}
-      />
-
-      <div className="rounded-card flex flex-col gap-2 border border-outline-variant p-3">
-        <label className="flex items-center gap-2 text-sm font-medium">
-          <Checkbox
-            name="is_special_request"
-            value="true"
-            checked={isSpecialRequest}
-            onCheckedChange={(checked) => setIsSpecialRequest(checked === true)}
-          />
-          Permintaan Khusus
-        </label>
-        {isSpecialRequest ? (
-          <Textarea
-            name="special_request_note"
-            placeholder="Jelasin permintaan khususnya — muncul di Pemberitahuan Mendesak"
-            value={specialRequestNote}
-            onChange={(e) => setSpecialRequestNote(e.target.value)}
-            rows={2}
-            required
+        {foodForm === "SARING" ? (
+          <SelectField
+            name="food_form_detail"
+            label="Opsi Makanan Saring"
+            defaultValue={foodFormDetail}
+            options={FOOD_FORM_SARING_OPTIONS}
+            onChange={setFoodFormDetail}
           />
         ) : null}
+      </FormSection>
+
+      <FormSection title="Alergi & Pantangan">
+        <fieldset className="flex flex-col gap-2 sm:col-span-2">
+          <legend className="mb-2 text-sm font-medium text-on-surface">Alergi Makanan (opsional)</legend>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+            {ALLERGY_OPTIONS.map((option) => (
+              <div key={option} className="flex flex-col gap-1.5">
+                <label className="flex min-h-9 items-center gap-2.5 text-sm">
+                  <Checkbox
+                    name="allergies"
+                    value={option}
+                    checked={checkedAllergies.has(option)}
+                    onCheckedChange={(checked) => toggleAllergy(option, checked === true)}
+                  />
+                  {option}
+                </label>
+                {checkedAllergies.has(option) ? (
+                  <Input
+                    type="text"
+                    name={`allergy_detail_${option}`}
+                    aria-label={`Keterangan alergi ${option}`}
+                    placeholder="Keterangan (contoh: gatal ringan)"
+                    value={allergyDetails.get(option) ?? ""}
+                    onChange={(e) => setAllergyDetails((prev) => new Map(prev).set(option, e.target.value))}
+                    className="mb-1"
+                  />
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </fieldset>
+
+        <CheckboxGroup
+          legend="Pantangan Makanan (opsional, boleh lebih dari satu)"
+          name="food_restrictions"
+          options={FOOD_RESTRICTION_OPTIONS}
+          defaultChecked={initial?.food_restrictions ?? []}
+        />
+      </FormSection>
+
+      <FormSection title="Catatan">
+        <div
+          className={cn(
+            "flex flex-col gap-2 rounded-lg border p-3 transition-colors sm:col-span-2",
+            isSpecialRequest ? "border-error/40 bg-error-container/30" : "border-outline-variant",
+          )}
+        >
+          <label className="flex items-center gap-2.5 text-sm font-medium">
+            <Checkbox
+              name="is_special_request"
+              value="true"
+              checked={isSpecialRequest}
+              onCheckedChange={(checked) => setIsSpecialRequest(checked === true)}
+            />
+            Permintaan Khusus
+          </label>
+          {isSpecialRequest ? (
+            <Textarea
+              name="special_request_note"
+              aria-label="Catatan permintaan khusus"
+              placeholder="Jelasin permintaan khususnya, muncul di Pemberitahuan Mendesak"
+              value={specialRequestNote}
+              onChange={(e) => setSpecialRequestNote(e.target.value)}
+              rows={2}
+              required
+              className="bg-surface-container-lowest"
+            />
+          ) : null}
+        </div>
+
+        <div className="sm:col-span-2">
+          <TextAreaField name="notes" label="Keterangan" defaultValue={initial?.notes ?? ""} />
+        </div>
+      </FormSection>
+
+      {error ? (
+        <p role="alert" className="flex items-center gap-2 rounded-lg bg-error-container/50 px-3 py-2 text-sm text-on-error-container">
+          <Icon name="error" size={18} className="text-error" />
+          {error}
+        </p>
+      ) : null}
+
+      <div className="sticky bottom-20 z-10 -mx-4 bg-linear-to-t from-background via-background to-transparent px-4 pt-4 md:bottom-0 md:mx-0 md:px-0 md:pb-4">
+        <Button type="submit" size="lg" className="h-12 w-full font-semibold shadow-raised" disabled={pending}>
+          {pending ? "Menyimpan..." : "Simpan"}
+        </Button>
       </div>
-
-      <TextAreaField name="notes" label="Keterangan" defaultValue={initial?.notes ?? ""} />
-
-      {error ? <p className="text-sm text-error">{error}</p> : null}
-
-      <Button type="submit" disabled={pending}>
-        {pending ? "Menyimpan..." : "Simpan"}
-      </Button>
     </form>
   );
 }
@@ -286,7 +315,7 @@ function TextField({
   const [value, setValue] = useState(defaultValue ?? "");
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <Label htmlFor={name}>
         {label}
         {required ? <span className="text-error"> *</span> : null}
@@ -315,7 +344,7 @@ function TextAreaField({
   const [value, setValue] = useState(defaultValue ?? "");
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <Label htmlFor={name}>{label}</Label>
       <Textarea id={name} name={name} value={value} onChange={(e) => setValue(e.target.value)} rows={3} />
     </div>
@@ -341,7 +370,7 @@ function SelectField({
   const [value, setValue] = useState(initialValue);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <Label htmlFor={name}>
         {label}
         {required ? <span className="text-error"> *</span> : null}
@@ -400,26 +429,37 @@ function CheckboxGroup({
   const [checked, setChecked] = useState<Set<string>>(new Set(defaultChecked));
 
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 text-sm font-medium text-on-surface">{legend}</legend>
-      {options.map((option) => (
-        <label key={option} className="flex items-center gap-2 text-sm">
-          <Checkbox
-            name={name}
-            value={option}
-            checked={checked.has(option)}
-            onCheckedChange={(isChecked) =>
-              setChecked((prev) => {
-                const next = new Set(prev);
-                if (isChecked) next.add(option);
-                else next.delete(option);
-                return next;
-              })
-            }
-          />
-          {option}
-        </label>
-      ))}
+    <fieldset className="sm:col-span-2">
+      <legend className="mb-2 text-sm font-medium text-on-surface">{legend}</legend>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
+        {options.map((option) => (
+          <label key={option} className="flex min-h-9 items-center gap-2.5 text-sm">
+            <Checkbox
+              name={name}
+              value={option}
+              checked={checked.has(option)}
+              onCheckedChange={(isChecked) =>
+                setChecked((prev) => {
+                  const next = new Set(prev);
+                  if (isChecked) next.add(option);
+                  else next.delete(option);
+                  return next;
+                })
+              }
+            />
+            {option}
+          </label>
+        ))}
+      </div>
     </fieldset>
+  );
+}
+
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5">
+      <h2 className="mb-4 text-base font-semibold">{title}</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
+    </section>
   );
 }

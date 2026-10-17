@@ -37,42 +37,44 @@ export function CreateUserForm({ action }: { action: CreateUserAction }) {
     <form
       ref={formRef}
       action={handleSubmit}
-      className="rounded-card flex flex-col gap-3 border border-outline-variant bg-surface-container-lowest p-4"
+      className="flex flex-col gap-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-5"
     >
-      <span className="text-sm font-medium">Tambah User</span>
+      <h2 className="text-base font-semibold">Tambah User</h2>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="full_name">Nama lengkap</Label>
-        <Input id="full_name" name="full_name" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="full_name">Nama lengkap</Label>
+          <Input id="full_name" name="full_name" />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" name="email" type="email" required />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" name="password" type="password" required minLength={6} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="role">Role</Label>
+          <Select name="role" defaultValue="none">
+            <SelectTrigger id="role" className="w-full">
+              <SelectValue placeholder="(belum di-assign)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">(belum di-assign)</SelectItem>
+              <SelectItem value="perawat">Perawat</SelectItem>
+              <SelectItem value="ahli_gizi">Ahli Gizi</SelectItem>
+              <SelectItem value="produksi">Bagian Produksi</SelectItem>
+              <SelectItem value="distribusi">Bagian Distribusi</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="password">Password</Label>
-        <Input id="password" name="password" type="password" required minLength={6} />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="role">Role</Label>
-        <Select name="role" defaultValue="none">
-          <SelectTrigger id="role" className="w-full">
-            <SelectValue placeholder="(belum di-assign)" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">(belum di-assign)</SelectItem>
-            <SelectItem value="perawat">Perawat</SelectItem>
-            <SelectItem value="ahli_gizi">Ahli Gizi</SelectItem>
-            <SelectItem value="produksi">Bagian Produksi</SelectItem>
-            <SelectItem value="distribusi">Bagian Distribusi</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" className="self-start" disabled={pending}>
         {pending ? "Membuat..." : "Buat User"}
       </Button>
 

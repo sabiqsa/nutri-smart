@@ -6,9 +6,6 @@ import { login } from "@/app/login/actions";
 import { Icon } from "@/components/Icon/Icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-
-import styles from "./LoginForm.module.css";
 
 export function LoginForm() {
   const [error, formAction, pending] = useActionState(login, null);
@@ -17,9 +14,9 @@ export function LoginForm() {
   return (
     <form
       action={formAction}
-      className={cn(styles.card, "flex w-full max-w-sm flex-col gap-4 bg-surface-container-lowest p-6")}
+      className="flex w-full max-w-sm flex-col gap-5 rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-raised"
     >
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-on-surface">
           Email Address
         </label>
@@ -27,7 +24,7 @@ export function LoginForm() {
           <Icon
             name="mail"
             size={18}
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-on-surface-variant"
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-on-surface-variant"
           />
           <Input
             id="email"
@@ -36,12 +33,12 @@ export function LoginForm() {
             required
             autoComplete="email"
             placeholder="staff@hospital.org"
-            className={cn(styles.input, "h-auto w-full border-outline-variant py-2 pr-3 pl-9 text-sm")}
+            className="h-11 w-full pr-3 pl-10"
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-on-surface">
           Password
         </label>
@@ -49,7 +46,7 @@ export function LoginForm() {
           <Icon
             name="lock"
             size={18}
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-on-surface-variant"
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-on-surface-variant"
           />
           <Input
             id="password"
@@ -57,7 +54,7 @@ export function LoginForm() {
             type={showPassword ? "text" : "password"}
             required
             autoComplete="current-password"
-            className={cn(styles.input, "h-auto w-full border-outline-variant py-2 pr-9 pl-9 text-sm")}
+            className="h-11 w-full pr-11 pl-10"
           />
           <Button
             type="button"
@@ -70,22 +67,28 @@ export function LoginForm() {
             <Icon name={showPassword ? "visibility_off" : "visibility"} size={18} />
           </Button>
         </div>
-        <div className="text-right">
-          <span className="text-xs font-medium text-primary">Forgot Password?</span>
-        </div>
       </div>
 
-      {error ? <p className="text-sm text-error">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="flex items-center gap-2 rounded-lg bg-error-container/50 px-3 py-2 text-sm text-on-error-container">
+          <Icon name="error" size={18} className="text-error" />
+          {error}
+        </p>
+      ) : null}
 
       <Button
         type="submit"
         disabled={pending}
-        className={cn(styles.submit, "h-auto rounded-full py-3 text-sm font-semibold")}
+        size="lg"
+        className="h-12 font-semibold"
       >
         {pending ? "Masuk..." : "Login"}
       </Button>
 
-      <p className="text-center text-xs text-on-surface-variant">Secure Clinician Access Only</p>
+      <p className="flex items-center justify-center gap-1.5 text-xs text-on-surface-variant">
+        <Icon name="lock" size={14} />
+        Secure Clinician Access Only
+      </p>
     </form>
   );
 }

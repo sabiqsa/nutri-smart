@@ -31,21 +31,29 @@ export default async function AdminUsersPage() {
     <div>
       <PageHeader title="Kelola User" backHref="/dashboard" />
 
-      <div className="flex flex-col gap-2 p-4">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 md:px-6">
         <CreateUserForm action={createUser} />
 
-        {(profiles ?? []).map((user) => (
-          <div
-            key={user.id}
-            className="rounded-card flex items-center justify-between border border-outline-variant bg-surface-container-lowest p-3"
-          >
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{user.full_name ?? "(tanpa nama)"}</span>
-              <span className="text-xs text-on-surface-variant">{user.email ?? "-"}</span>
-            </div>
-            <UserRoleForm action={updateProfileRole.bind(null, user.id)} currentRole={user.role} />
-          </div>
-        ))}
+        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest">
+          <h2 className="px-5 pt-4 pb-3 text-base font-semibold">
+            Daftar User <span className="text-on-surface-variant tabular-nums">({(profiles ?? []).length})</span>
+          </h2>
+          {(profiles ?? []).length === 0 ? (
+            <p className="border-t border-outline-variant px-5 py-6 text-sm text-on-surface-variant">Belum ada user.</p>
+          ) : (
+            <ul className="divide-y divide-outline-variant border-t border-outline-variant">
+              {(profiles ?? []).map((user) => (
+                <li key={user.id} className="flex flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate text-sm font-semibold">{user.full_name ?? "(tanpa nama)"}</span>
+                    <span className="truncate text-xs text-on-surface-variant">{user.email ?? "-"}</span>
+                  </div>
+                  <UserRoleForm action={updateProfileRole.bind(null, user.id)} currentRole={user.role} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </div>
   );

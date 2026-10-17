@@ -24,7 +24,7 @@ export default async function AdminSettingsPage() {
     <div>
       <PageHeader title="Pengaturan" backHref="/dashboard" />
 
-      <div className="flex flex-col gap-4 p-4">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-6 md:px-6">
         <UrgentNotificationForm
           currentHours={settings?.urgent_notification_hours ?? 12}
           action={updateUrgentNotificationHours}

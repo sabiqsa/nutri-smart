@@ -21,11 +21,11 @@ export function MealCutoffForm({ row, action }: { row: MealCutoffRow; action: Ac
   return (
     <form
       action={formAction}
-      className="rounded-card flex flex-col gap-3 border border-outline-variant bg-surface-container-lowest p-4"
+      className="flex flex-col gap-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-5"
     >
-      <span className="text-sm font-semibold text-primary">{MEAL_PERIOD_LABEL[row.period]}</span>
+      <h2 className="text-base font-semibold">{MEAL_PERIOD_LABEL[row.period]}</h2>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${row.period}-data_cutoff_time`}>Cut-off Data Kebutuhan</Label>
           <Input

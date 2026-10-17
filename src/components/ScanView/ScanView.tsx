@@ -88,10 +88,12 @@ export function ScanView() {
   if (state.phase === "select_room") {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-        <Icon name="meeting_room" size={48} className="text-primary" />
-        <h2 className="text-lg font-semibold">Pilih Ruangan Tujuan</h2>
+        <span className="flex size-16 items-center justify-center rounded-2xl bg-primary-fixed text-primary">
+          <Icon name="meeting_room" size={32} />
+        </span>
+        <h2 className="text-xl font-bold">Pilih Ruangan Tujuan</h2>
         <p className="max-w-xs text-center text-sm text-on-surface-variant">
-          QR yang discan akan divalidasi terhadap ruangan ini — cegah makanan salah kamar.
+          QR yang discan akan divalidasi terhadap ruangan ini, biar makanan gak salah kamar.
         </p>
         <Select
           onValueChange={(room) => {
@@ -99,7 +101,7 @@ export function ScanView() {
             setState({ phase: "scanning" });
           }}
         >
-          <SelectTrigger className="w-full max-w-xs">
+          <SelectTrigger className="h-12 w-full max-w-xs bg-surface-container-lowest">
             <SelectValue placeholder="Pilih ruangan..." />
           </SelectTrigger>
           <SelectContent>
@@ -154,7 +156,7 @@ export function ScanView() {
       {/* Bottom verification sheet */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-60 rounded-t-xl bg-surface shadow-[0_-10px_40px_rgba(0,0,0,0.3)] transition-transform duration-500 ease-out",
+          "fixed inset-x-0 bottom-0 z-60 mx-auto max-w-lg rounded-t-2xl bg-surface-container-lowest pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_40px_rgb(0_27_61/0.35)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           sheetOpen ? "translate-y-0" : "translate-y-full",
         )}
       >
@@ -195,7 +197,7 @@ export function ScanView() {
               </div>
             </div>
             <p className="mb-2 text-sm text-on-surface-variant">
-              Label ini punya <strong>{state.patient.patient_name ?? state.patient.medical_record_number}</strong> —
+              Label ini punya <strong>{state.patient.patient_name ?? state.patient.medical_record_number}</strong> di
               ruangan <strong>{state.patient.room}</strong>, bukan tujuan saat ini ({targetRoom}).
             </p>
             <p className="mb-6 text-sm font-semibold text-error">Status distribusi TIDAK diupdate.</p>

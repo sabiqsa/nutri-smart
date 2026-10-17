@@ -20,12 +20,12 @@ export function ClosePatientButton({ action, patientName }: { action: Action; pa
       action={formAction}
       onSubmit={(e) => {
         const ok = window.confirm(
-          `Tutup data pasien "${patientName}"? Ini menghapus datanya PERMANEN (termasuk riwayat diet) — pastiin pasien emang udah pulang/meninggal.`,
+          `Tutup data pasien "${patientName}"? Ini menghapus datanya PERMANEN (termasuk riwayat diet). Pastiin pasien emang udah pulang/meninggal.`,
         );
         if (!ok) e.preventDefault();
       }}
     >
-      <Button type="submit" variant="destructive" size="sm" disabled={pending}>
+      <Button type="submit" variant="destructive" size="sm" className="w-full" disabled={pending}>
         {pending ? "Menutup..." : "Close Pasien"}
       </Button>
       {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}

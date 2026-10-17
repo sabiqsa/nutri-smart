@@ -16,13 +16,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!profile.role) {
     return (
-      <main className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-        <h1 className="text-lg font-semibold">Menunggu akses</h1>
+      <main className="flex min-h-dvh flex-1 flex-col items-center justify-center gap-3 bg-surface-container-low p-6 text-center">
+        <h1 className="text-xl font-bold">Menunggu akses</h1>
         <p className="max-w-sm text-sm text-on-surface-variant">
           Akun kamu belum diberi role oleh admin. Hubungi admin NutriSmart untuk aktivasi akun.
         </p>
         <form action="/auth/logout" method="post">
-          <button type="submit" className="mt-2 text-sm font-medium text-on-surface-variant underline">
+          <button type="submit" className="mt-2 text-sm font-semibold text-primary underline-offset-4 hover:underline">
             Logout
           </button>
         </form>

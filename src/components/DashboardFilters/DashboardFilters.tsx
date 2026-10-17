@@ -2,21 +2,19 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { Icon } from "@/components/Icon/Icon";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DELIVERY_STATUS, DELIVERY_STATUS_ORDER } from "@/constants/delivery-status";
 import { DIET_KHUSUS_OPTIONS, DIET_UTAMA_OPTIONS, ROOM_OPTIONS } from "@/constants/patient-options";
+import { cn } from "@/lib/utils";
 
-// Radix Select items can't have an empty-string value — stands in for
+// Radix Select items can't have an empty-string value; stands in for
 // "Semua" (no filter) and gets translated back to "" before touching the
 // URL search params.
 const ALL = "__all__";
 
-const STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "ready", label: "Ready" },
-  { value: "delivered", label: "Delivered" },
-  { value: "not_distributed", label: "Tidak Dibagikan" },
-] as const;
+const STATUS_OPTIONS = DELIVERY_STATUS_ORDER.map((value) => ({ value, label: DELIVERY_STATUS[value].label }));
 
 export function DashboardFilters() {
   const router = useRouter();
@@ -33,7 +31,8 @@ export function DashboardFilters() {
   const hasFilters = ["room", "diet_type", "special_diet", "status"].some((k) => searchParams.get(k));
 
   return (
-    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
+    <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
+      <Icon name="filter_list" size={20} className="shrink-0 text-on-surface-variant" />
       <FilterSelect
         label="Ruangan"
         value={searchParams.get("room") ?? ""}
@@ -56,7 +55,7 @@ export function DashboardFilters() {
         value={searchParams.get("status") || ALL}
         onValueChange={(v) => setParam("status", v === ALL ? "" : v)}
       >
-        <SelectTrigger size="sm" className="shrink-0 rounded-full">
+        <SelectTrigger size="sm" className={triggerClass(!!searchParams.get("status"))}>
           <SelectValue placeholder="Status: Semua" />
         </SelectTrigger>
         <SelectContent>
@@ -71,15 +70,22 @@ export function DashboardFilters() {
       {hasFilters ? (
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
-          className="shrink-0 rounded-full"
+          className="shrink-0 rounded-full text-primary"
           onClick={() => router.push(pathname)}
         >
           Reset
         </Button>
       ) : null}
     </div>
+  );
+}
+
+function triggerClass(active: boolean) {
+  return cn(
+    "shrink-0 rounded-full bg-surface-container-lowest",
+    active && "border-primary bg-primary-fixed font-semibold text-on-primary-fixed-variant",
   );
 }
 
@@ -96,7 +102,7 @@ function FilterSelect({
 }) {
   return (
     <Select value={value || ALL} onValueChange={(v) => onChange(v === ALL ? "" : v)}>
-      <SelectTrigger size="sm" className="shrink-0 rounded-full">
+      <SelectTrigger size="sm" className={triggerClass(!!value)}>
         <SelectValue placeholder={`${label}: Semua`} />
       </SelectTrigger>
       <SelectContent>

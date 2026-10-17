@@ -18,7 +18,6 @@ import type { Patient } from "@/types/patient";
 import type { UserRole } from "@/types/profile";
 import { cn } from "@/lib/utils";
 
-import styles from "./AppShell.module.css";
 import { getNavItems } from "./nav-items";
 
 type UrgentNotification = Pick<Patient, "id" | "patient_name" | "medical_record_number" | "special_request_note">;
@@ -38,52 +37,54 @@ const ROLE_LABEL: Record<UserRole, string> = {
   admin: "Admin",
 };
 
+const ADMIN_LINKS = [
+  { href: "/admin/users", label: "Kelola User", icon: "group" },
+  { href: "/admin/meal-cutoff", label: "Cut-off", icon: "schedule" },
+  { href: "/admin/settings", label: "Pengaturan", icon: "settings" },
+] as const;
+
+function initialsOf(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
 export function AppShell({ children, fullName, role, urgentNotifications }: AppShellProps) {
   const pathname = usePathname();
   const navItems = getNavItems(role);
+  const displayName = fullName ?? ROLE_LABEL[role];
 
   return (
     <div className="flex flex-1 flex-col md:flex-row">
-      <aside
-        className={cn(
-          styles.sidebar,
-          "hidden w-56 flex-col gap-1 bg-surface-container-lowest p-4 md:flex print:hidden",
-        )}
-      >
-        <div className="mb-4 flex items-center gap-2 px-2">
-          <span className="flex size-8 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
-            <Icon name="account_circle" size={20} />
-          </span>
-          <span className="font-bold text-primary">NutriSmart</span>
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-outline-variant bg-surface-container-lowest md:sticky md:top-0 md:flex md:h-dvh print:hidden">
+        <div className="flex h-16 items-center px-5">
+          <BrandMark />
         </div>
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} active={pathname.startsWith(item.href)} />
-        ))}
+        <nav className="flex flex-col gap-1 px-3 pt-2" aria-label="Navigasi utama">
+          {navItems.map((item) => (
+            <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} active={pathname.startsWith(item.href)} />
+          ))}
+        </nav>
+        {role === "admin" ? (
+          <nav className="mt-6 flex flex-col gap-1 px-3" aria-label="Admin">
+            <p className="px-3 pb-1 text-xs font-semibold text-on-surface-variant">Admin</p>
+            {ADMIN_LINKS.map((item) => (
+              <NavLink key={item.href} {...item} active={pathname.startsWith(item.href)} />
+            ))}
+          </nav>
+        ) : null}
       </aside>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-outline-variant bg-surface px-4 print:hidden">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container md:hidden">
-              <Icon name="account_circle" size={22} />
-            </span>
-            <div className="flex flex-col">
-              <span className="font-bold text-primary">NutriSmart</span>
-              {/* Only show the separate role badge when there's a name to
-                  pair it with — otherwise this repeated ROLE_LABEL[role]
-                  as both the fallback name and the badge ("Admin ADMIN"). */}
-              <span className="text-xs text-on-surface-variant">
-                {fullName ? (
-                  <>
-                    {fullName}
-                    <span className="ml-2 text-[10px] text-on-surface-variant uppercase">{ROLE_LABEL[role]}</span>
-                  </>
-                ) : (
-                  ROLE_LABEL[role]
-                )}
-              </span>
-            </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-outline-variant bg-surface/90 px-4 backdrop-blur-md md:px-6 print:hidden">
+          <div className="md:hidden">
+            <BrandMark />
           </div>
+          <div className="hidden md:block" />
+
           <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -91,29 +92,27 @@ export function AppShell({ children, fullName, role, urgentNotifications }: AppS
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="relative rounded-full text-primary"
+                  className="relative rounded-full text-on-surface-variant hover:text-primary"
                   aria-label="Pemberitahuan Mendesak"
                 >
-                  <Icon name="notifications" />
+                  <Icon name="notifications" filled={urgentNotifications.length > 0} />
                   {urgentNotifications.length > 0 ? (
-                    <span className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-on-error">
+                    <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] leading-4 font-bold text-on-error tabular-nums ring-2 ring-surface">
                       {urgentNotifications.length > 9 ? "9+" : urgentNotifications.length}
                     </span>
                   ) : null}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel>Pemberitahuan Mendesak</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {urgentNotifications.length === 0 ? (
-                  <p className="px-1.5 py-2 text-sm text-on-surface-variant">
-                    Gak ada pemberitahuan mendesak saat ini.
-                  </p>
+                  <p className="px-2 py-3 text-sm text-on-surface-variant">Gak ada pemberitahuan mendesak saat ini.</p>
                 ) : (
                   urgentNotifications.map((patient) => (
-                    <DropdownMenuItem key={patient.id} asChild className="flex-col items-start gap-0.5">
+                    <DropdownMenuItem key={patient.id} asChild className="flex-col items-start gap-0.5 py-2">
                       <Link href={`/patients/${patient.id}`}>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold">
                           {patient.patient_name ?? patient.medical_record_number}
                         </span>
                         <span className="line-clamp-2 text-xs text-on-surface-variant">
@@ -126,62 +125,42 @@ export function AppShell({ children, fullName, role, urgentNotifications }: AppS
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Desktop: plain links. Mobile: collapsed into the hamburger
-                below — this row was overflowing/cramped next to the bell
-                on narrow screens. */}
-            <div className="hidden items-center gap-3 md:flex">
-              {role === "admin" ? (
-                <>
-                  <Link
-                    href="/admin/users"
-                    className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
-                  >
-                    Kelola User
-                  </Link>
-                  <Link
-                    href="/admin/meal-cutoff"
-                    className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
-                  >
-                    Cut-off
-                  </Link>
-                  <Link
-                    href="/admin/settings"
-                    className="text-sm font-medium text-on-surface-variant hover:text-on-surface"
-                  >
-                    Pengaturan
-                  </Link>
-                </>
-              ) : null}
-              <form action="/auth/logout" method="post">
-                <LogoutButton className="text-sm font-medium text-on-surface-variant hover:text-on-surface" />
-              </form>
-            </div>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
-                  className="rounded-full text-primary md:hidden"
-                  aria-label="Menu"
+                  className="h-11 gap-2.5 rounded-full pr-2 pl-1.5 md:pr-3"
+                  aria-label="Menu akun"
                 >
-                  <Icon name="menu" />
+                  <span className="flex size-8 items-center justify-center rounded-full bg-primary-fixed text-xs font-bold text-on-primary-fixed-variant">
+                    {initialsOf(displayName) || <Icon name="person" size={18} />}
+                  </span>
+                  <span className="hidden flex-col items-start leading-tight md:flex">
+                    <span className="max-w-40 truncate text-sm font-semibold text-on-surface">{displayName}</span>
+                    {fullName ? <span className="text-xs text-on-surface-variant">{ROLE_LABEL[role]}</span> : null}
+                  </span>
+                  <Icon name="expand_more" size={18} className="hidden text-on-surface-variant md:inline-block" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="flex flex-col">
+                  <span className="truncate text-sm font-semibold">{displayName}</span>
+                  <span className="text-xs font-normal text-on-surface-variant">{ROLE_LABEL[role]}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {/* Desktop has these in the sidebar; mobile has no sidebar. */}
                 {role === "admin" ? (
                   <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/users">Kelola User</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/meal-cutoff">Cut-off</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/settings">Pengaturan</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {ADMIN_LINKS.map((item) => (
+                      <DropdownMenuItem key={item.href} asChild className="md:hidden">
+                        <Link href={item.href}>
+                          <Icon name={item.icon} size={18} />
+                          {item.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator className="md:hidden" />
                   </>
                 ) : null}
                 <form action="/auth/logout" method="post">
@@ -194,45 +173,88 @@ export function AppShell({ children, fullName, role, urgentNotifications }: AppS
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto pb-24 md:pb-0">{children}</main>
+        <main className="flex flex-1 flex-col pb-24 md:pb-0">{children}</main>
       </div>
 
       <nav
-        className={cn(
-          styles.bottomNav,
-          "fixed inset-x-0 bottom-0 z-50 flex items-center justify-around rounded-t-xl border-t border-outline-variant bg-surface px-2 py-2 shadow-lg md:hidden print:hidden",
-        )}
+        aria-label="Navigasi utama"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-outline-variant bg-surface-container-lowest/95 px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-floating backdrop-blur-md md:hidden print:hidden"
       >
         {navItems.map((item) => (
-          <NavLink key={item.href} item={item} active={pathname.startsWith(item.href)} compact />
+          <NavLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={pathname.startsWith(item.href)}
+            compact
+          />
         ))}
       </nav>
     </div>
   );
 }
 
+function BrandMark() {
+  return (
+    <span className="flex items-center gap-2.5">
+      <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-on-primary">
+        <Icon name="nutrition" filled size={20} />
+      </span>
+      <span className="text-base font-black tracking-tight text-primary">NutriSmart</span>
+    </span>
+  );
+}
+
 function NavLink({
-  item,
+  href,
+  label,
+  icon,
   active,
   compact,
 }: {
-  item: ReturnType<typeof getNavItems>[number];
+  href: string;
+  label: string;
+  icon: string;
   active: boolean;
   compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <Link
+        href={href}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "flex min-w-18 flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-xs font-medium transition-colors active:scale-95",
+          active ? "text-primary" : "text-on-surface-variant",
+        )}
+      >
+        <span
+          className={cn(
+            "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
+            active ? "bg-primary-fixed" : "",
+          )}
+        >
+          <Icon name={icon} filled={active} size={22} />
+        </span>
+        {label}
+      </Link>
+    );
+  }
+
   return (
     <Link
-      href={item.href}
+      href={href}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-2 rounded-xl px-4 py-1.5 text-sm transition-all active:scale-95",
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
         active
-          ? "bg-secondary-container text-on-secondary-container"
-          : "text-on-surface-variant hover:bg-surface-container-high",
-        compact ? "flex-col gap-0.5 px-3 py-1 text-xs" : "",
+          ? "bg-primary-fixed text-on-primary-fixed-variant"
+          : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
       )}
     >
-      <Icon name={item.icon} filled={active} size={compact ? 22 : 20} />
-      {item.label}
+      <Icon name={icon} filled={active} size={20} />
+      {label}
     </Link>
   );
 }

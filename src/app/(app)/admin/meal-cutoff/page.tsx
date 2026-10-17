@@ -23,9 +23,9 @@ export default async function MealCutoffPage() {
     <div>
       <PageHeader title="Cut-off Sesi Makan" backHref="/dashboard" />
 
-      <div className="flex flex-col gap-4 p-4">
-        <p className="text-sm text-on-surface-variant">
-          Perubahan data kebutuhan makan sampai jam cut-off dipakai untuk rekap sesi itu — lewat dari situ otomatis
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-6 md:px-6">
+        <p className="max-w-[65ch] text-sm text-on-surface-variant">
+          Perubahan data kebutuhan makan sampai jam cut-off dipakai untuk rekap sesi itu. Lewat dari situ otomatis
           masuk sesi berikutnya. Jam evaluasi distribusi menentukan kapan rekap Berhasil/Pending/Tidak Dibagikan
           digenerate otomatis.
         </p>

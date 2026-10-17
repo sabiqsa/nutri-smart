@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 
+import { Icon } from "@/components/Icon/Icon";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,14 +15,15 @@ export function MarkNotDistributedForm({ action }: { action: Action }) {
 
   if (!open) {
     return (
-      <Button type="button" variant="link" className="h-auto p-0 text-error" onClick={() => setOpen(true)}>
+      <Button type="button" variant="ghost" size="sm" className="gap-1 text-error hover:bg-error-container/40 hover:text-error" onClick={() => setOpen(true)}>
+        <Icon name="block" size={16} />
         Tandai Tidak Dibagikan
       </Button>
     );
   }
 
   return (
-    <form action={formAction} className="rounded-card flex flex-col gap-2 border border-error bg-error-container/20 p-3">
+    <form action={formAction} className="flex w-full flex-col gap-2 rounded-xl border border-error/40 bg-error-container/30 p-4">
       <Label htmlFor="reason" className="text-xs text-on-error-container">
         Alasan tidak dibagikan
       </Label>

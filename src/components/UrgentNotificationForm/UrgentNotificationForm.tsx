@@ -15,11 +15,11 @@ export function UrgentNotificationForm({ currentHours, action }: { currentHours:
   return (
     <form
       action={formAction}
-      className="rounded-card flex flex-col gap-3 border border-outline-variant bg-surface-container-lowest p-4"
+      className="flex flex-col gap-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-5"
     >
       <div>
-        <span className="text-sm font-semibold text-primary">Pemberitahuan Mendesak</span>
-        <p className="text-xs text-on-surface-variant">
+        <h2 className="text-base font-semibold">Pemberitahuan Mendesak</h2>
+        <p className="mt-1 max-w-[65ch] text-sm text-on-surface-variant">
           Durasi &ldquo;Permintaan Khusus&rdquo; tetep nongol di Dashboard sejak terakhir disimpan, sebelum
           ke-geser/ilang dari daftar itu.
         </p>
