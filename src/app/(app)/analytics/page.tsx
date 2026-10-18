@@ -6,6 +6,7 @@ import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { DistributionSnapshot, MealCutoffRow } from "@/types/meal-cutoff";
 import type { PatientWithDelivery } from "@/types/patient";
+import { cn } from "@/lib/utils";
 
 const PAPER_SHEETS_PER_DELIVERY = 1;
 
@@ -82,6 +83,7 @@ export default async function AnalyticsPage() {
   });
 
   const errorLog = all.filter((p) => p.meal_deliveries[0]?.mismatch);
+  const hasErrors = errorLog.length > 0;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
@@ -254,19 +256,18 @@ export default async function AnalyticsPage() {
       {/* Error log */}
       <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
         <div
-          className={
-            errorLog.length > 0
-              ? "flex items-center justify-between border-b border-outline-variant bg-error-container/30 px-5 py-4 md:px-6"
-              : "flex items-center justify-between border-b border-outline-variant px-5 py-4 md:px-6"
-          }
+          className={cn(
+            "flex items-center justify-between border-b border-outline-variant px-5 py-4 md:px-6",
+            hasErrors && "bg-error-container/30",
+          )}
         >
           <div className="flex items-center gap-3">
             <Icon
-              name={errorLog.length > 0 ? "gpp_maybe" : "verified_user"}
+              name={hasErrors ? "gpp_maybe" : "verified_user"}
               filled
-              className={errorLog.length > 0 ? "text-error" : "text-secondary"}
+              className={hasErrors ? "text-error" : "text-secondary"}
             />
-            <h3 className={errorLog.length > 0 ? "text-base font-semibold text-on-error-container" : "text-base font-semibold"}>
+            <h3 className={cn("text-base font-semibold", hasErrors && "text-on-error-container")}>
               {errorLog.length} Kesalahan Terdeteksi
             </h3>
           </div>

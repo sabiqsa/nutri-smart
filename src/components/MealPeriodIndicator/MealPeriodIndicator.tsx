@@ -26,7 +26,7 @@ export function MealPeriodIndicator({ cutoffTimes }: { cutoffTimes: MealCutoffTi
   const cutoff = cutoffTimes[period];
 
   return (
-    <p className="rounded-card flex items-center gap-2 border border-primary/30 bg-primary-fixed px-3 py-2 text-xs text-on-primary-fixed-variant">
+    <p className="rounded-lg flex items-center gap-2 border border-primary/30 bg-primary-fixed px-3 py-2 text-xs text-on-primary-fixed-variant">
       <Icon name="schedule" size={16} />
       Perubahan sekarang akan masuk ke rekap kebutuhan makan{" "}
       <strong>{rolledToNextDay ? `${MEAL_PERIOD_LABEL[period]} besok` : MEAL_PERIOD_LABEL[period]}</strong>{" "}

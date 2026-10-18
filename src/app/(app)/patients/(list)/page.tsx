@@ -16,6 +16,8 @@ export default async function PatientsPage({
   const supabase = await createClient();
   const profile = await getCurrentProfile();
   const role = profile?.role ?? null;
+  const canEdit = canEditPatients(role);
+  const canPrint = canPrintLabel(role);
 
   let query = supabase
     .from("patients")
@@ -32,9 +34,9 @@ export default async function PatientsPage({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-6 md:px-6 md:py-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-2xl font-bold">Daftar Pasien</h1>
-        {canEditPatients(role) || canPrintLabel(role) ? (
+        {canEdit || canPrint ? (
           <div className="flex gap-2">
-            {canPrintLabel(role) ? (
+            {canPrint ? (
               <Button asChild variant="outline" className="gap-1.5">
                 <Link href="/patients/print-labels">
                   <Icon name="print" size={18} />
@@ -42,7 +44,7 @@ export default async function PatientsPage({
                 </Link>
               </Button>
             ) : null}
-            {canEditPatients(role) ? (
+            {canEdit ? (
               <Button asChild className="gap-1.5">
                 <Link href="/patients/new">
                   <Icon name="add" size={18} />

@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { APP_TIMEZONE } from "@/config/meal-cutoff";
+import { DELIVERY_STATUS } from "@/constants/delivery-status";
 import { ALLERGY_OPTIONS, DIET_KHUSUS_OPTIONS, FOOD_FORM_OPTIONS } from "@/constants/patient-options";
-import { canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
+import { canScanDistribution, canViewMetrics, getCurrentProfile } from "@/libs/supabase/get-profile";
 import { createClient } from "@/libs/supabase/server";
 import type { DistributionStatus, PatientWithDelivery } from "@/types/patient";
 import { cn } from "@/lib/utils";
@@ -111,12 +112,14 @@ export default async function DashboardPage({
           <h1 className="text-2xl font-bold md:text-3xl">Selamat Datang</h1>
           <p className="text-sm text-on-surface-variant">Siap untuk mendistribusikan nutrisi tepat waktu hari ini?</p>
         </div>
-        <Button asChild size="lg" className="h-12 gap-2 self-start px-5 font-semibold shadow-raised md:self-auto">
-          <Link href="/scan">
-            <Icon name="qr_code_scanner" size={20} />
-            Mulai Scan QR
-          </Link>
-        </Button>
+        {canScanDistribution(profile?.role ?? null) ? (
+          <Button asChild size="lg" className="h-12 gap-2 self-start px-5 font-semibold shadow-raised md:self-auto">
+            <Link href="/scan">
+              <Icon name="qr_code_scanner" size={20} />
+              Mulai Scan QR
+            </Link>
+          </Button>
+        ) : null}
       </section>
 
       <div className="flex flex-col gap-4">
@@ -142,10 +145,12 @@ export default async function DashboardPage({
               )}
             </div>
             <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-on-surface-variant">
-              <Legend className="bg-secondary" label="Terkirim" />
-              <Legend className="bg-primary" label="Siap Kirim" />
-              <Legend className="bg-primary-fixed-dim" label="Pending" />
-              <Legend className="bg-outline" label="Tidak Dibagikan" />
+              {segments.map(({ key, className }) => (
+                <li key={key} className="flex items-center gap-1.5">
+                  <span className={cn("size-2 rounded-full", className)} />
+                  {DELIVERY_STATUS[key].label}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -243,15 +248,6 @@ export default async function DashboardPage({
         </section>
       </div>
     </div>
-  );
-}
-
-function Legend({ className, label }: { className: string; label: string }) {
-  return (
-    <li className="flex items-center gap-1.5">
-      <span className={cn("size-2 rounded-full", className)} />
-      {label}
-    </li>
   );
 }
 

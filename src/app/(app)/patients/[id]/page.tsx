@@ -56,6 +56,7 @@ export default async function PatientDetailPage({
     : { data: null };
 
   const hasAllergy = patient.allergies.length > 0;
+  const allergyText = patient.allergies.map((a) => (a.detail ? `${a.type} (${a.detail})` : a.type)).join(", ");
   const canMarkNotDistributed =
     canScanDistribution(role) &&
     !!patient.meal_deliveries[0] &&
@@ -109,7 +110,7 @@ export default async function PatientDetailPage({
 
           {hasAllergy ? (
             <Callout icon="emergency" title="Alergi">
-              {patient.allergies.map((a) => (a.detail ? `${a.type} (${a.detail})` : a.type)).join(", ")}
+              {allergyText}
             </Callout>
           ) : null}
 
@@ -150,11 +151,7 @@ export default async function PatientDetailPage({
           <FieldGroup title="Alergi & Pantangan">
             <Field
               label="Alergi"
-              value={
-                hasAllergy
-                  ? patient.allergies.map((a) => (a.detail ? `${a.type} (${a.detail})` : a.type)).join(", ")
-                  : "-"
-              }
+              value={allergyText || "-"}
               highlight={hasAllergy}
             />
             <Field

@@ -10,7 +10,7 @@ export function MealLabel({ patient, qrDataUrl, verifiedBy }: MealLabelProps) {
   const hasAllergy = patient.allergies.length > 0;
 
   return (
-    <div className="rounded-card break-inside-avoid border-2 border-on-surface bg-surface-container-lowest p-4 print:break-inside-avoid">
+    <div className="rounded-lg break-inside-avoid border-2 border-on-surface bg-surface-container-lowest p-4 print:break-inside-avoid">
       <div className="mb-2 flex items-center justify-between border-b border-outline-variant pb-2">
         <div>
           <p className="text-xs font-semibold tracking-wide text-on-surface-variant uppercase">Dietary Service</p>

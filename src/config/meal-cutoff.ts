@@ -10,12 +10,6 @@ export const DEFAULT_DATA_CUTOFF_TIMES: Record<MealPeriod, string> = {
   sore: "14:00",
 };
 
-export const DEFAULT_EVALUATION_CUTOFF_TIMES: Record<MealPeriod, string> = {
-  pagi: "07:00",
-  siang: "12:30",
-  sore: "18:00",
-};
-
 export const MEAL_PERIOD_ORDER: readonly MealPeriod[] = ["pagi", "siang", "sore"];
 
 export const MEAL_PERIOD_LABEL: Record<MealPeriod, string> = {

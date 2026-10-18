@@ -11,13 +11,6 @@ export type MealCutoffRow = {
   updated_by: string | null;
 };
 
-export type MealPeriodLock = {
-  id: string;
-  lock_date: string;
-  period: MealPeriod;
-  locked_at: string;
-};
-
 export type DistributionSnapshot = {
   id: string;
   snapshot_date: string;

@@ -70,7 +70,7 @@ export function InstallPrompt() {
   }
 
   return (
-    <div className="rounded-card fixed inset-x-4 bottom-24 z-50 flex items-center gap-3 border border-outline-variant bg-surface-container-lowest p-3 shadow-lg md:bottom-4 md:left-auto md:right-4 md:w-80">
+    <div className="rounded-lg fixed inset-x-4 top-20 z-50 flex items-center gap-3 border border-outline-variant bg-surface-container-lowest p-3 shadow-lg md:top-auto md:bottom-4 md:left-auto md:right-4 md:w-80">
       <Icon name="download" className="shrink-0 text-primary" size={20} />
       <div className="flex-1 text-sm">
         {showIosHint ? (
@@ -85,7 +85,7 @@ export function InstallPrompt() {
         <button
           type="button"
           onClick={handleInstall}
-          className="rounded-card shrink-0 bg-primary px-3 py-1.5 text-xs font-semibold text-on-primary"
+          className="rounded-lg shrink-0 bg-primary px-3 py-1.5 text-xs font-semibold text-on-primary"
         >
           Install
         </button>

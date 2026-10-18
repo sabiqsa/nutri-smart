@@ -26,6 +26,7 @@ export default async function AdminUsersPage() {
     .or("role.neq.admin,role.is.null")
     .order("created_at")
     .returns<Profile[]>();
+  const users = profiles ?? [];
 
   return (
     <div>
@@ -36,13 +37,13 @@ export default async function AdminUsersPage() {
 
         <section className="rounded-xl border border-outline-variant bg-surface-container-lowest">
           <h2 className="px-5 pt-4 pb-3 text-base font-semibold">
-            Daftar User <span className="text-on-surface-variant tabular-nums">({(profiles ?? []).length})</span>
+            Daftar User <span className="text-on-surface-variant tabular-nums">({users.length})</span>
           </h2>
-          {(profiles ?? []).length === 0 ? (
+          {users.length === 0 ? (
             <p className="border-t border-outline-variant px-5 py-6 text-sm text-on-surface-variant">Belum ada user.</p>
           ) : (
             <ul className="divide-y divide-outline-variant border-t border-outline-variant">
-              {(profiles ?? []).map((user) => (
+              {users.map((user) => (
                 <li key={user.id} className="flex flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 flex-col">
                     <span className="truncate text-sm font-semibold">{user.full_name ?? "(tanpa nama)"}</span>

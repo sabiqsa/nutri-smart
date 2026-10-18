@@ -68,16 +68,6 @@
   --color-inverse-on-surface: #eff1f3;
   --color-surface-tint: #005db6;
 
-  /* Back-compat aliases used by earlier (session 3) components */
-  --color-primary-light: var(--color-primary-fixed);
-  --color-primary-dark: var(--color-primary);
-  --color-status-pending: var(--color-outline);
-  --color-status-ready: var(--color-primary);
-  --color-status-delivered: var(--color-secondary);
-  --color-status-mismatch: var(--color-error);
-
-  --radius-card: 0.75rem;
-
   /*
    * shadcn/ui token names, aliased to the M3 tokens above instead of
    * shadcn's default neutral oklch scale — keeps generated components
@@ -103,7 +93,7 @@
   --border: var(--color-outline-variant);
   --input: var(--color-outline-variant);
   --ring: var(--color-primary);
-  --radius: var(--radius-card);
+  --radius: 0.75rem;
 }
 
 @theme inline {
@@ -163,17 +153,6 @@
   --color-inverse-on-surface: var(--color-inverse-on-surface);
   --color-surface-tint: var(--color-surface-tint);
 
-  --color-primary-light: var(--color-primary-light);
-  --color-primary-dark: var(--color-primary-dark);
-  --color-status-pending: var(--color-status-pending);
-  --color-status-ready: var(--color-status-ready);
-  --color-status-delivered: var(--color-status-delivered);
-  --color-status-mismatch: var(--color-status-mismatch);
-
-  --radius-card: var(--radius-card);
-
-  --font-heading: var(--font-sans);
-
   --color-ring: var(--ring);
 
   --color-input: var(--input);
@@ -208,10 +187,10 @@
 
   --radius-md: calc(var(--radius) * 0.8);
 
-  /* lg and xl are deliberately the same value (== --radius-card, 12px).
+  /* lg and xl are deliberately the same value (== --radius, 12px).
      shadcn's default scale makes xl 1.4x lg, which silently made every
      existing `rounded-xl` card (dashboard, patient list, search) rounder
-     than the `rounded-card`/`rounded-lg` form controls next to them. */
+     than the `rounded-lg` form controls next to them. */
   --radius-lg: var(--radius);
 
   --radius-xl: var(--radius);
