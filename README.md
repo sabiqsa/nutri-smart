@@ -1,120 +1,120 @@
 # NutriSmart
 
-A PWA for managing hospital patient diets and meal distribution: nurses and dietitians record each patient's diet, the kitchen prints labels with QR codes, and the distribution team scans them to confirm delivery. Dashboards show live portion counts per meal period.
+PWA untuk manajemen diet dan distribusi makanan pasien rumah sakit: perawat dan ahli gizi mencatat diet tiap pasien, bagian produksi mencetak label dengan QR code, lalu bagian distribusi memindai label untuk konfirmasi pengantaran. Dashboard menampilkan rekap porsi secara real-time per sesi makan.
 
-Every screen requires an account, and what a user can see and do depends on their role.
+Semua halaman wajib login, dan apa yang bisa dilihat serta dilakukan user tergantung role-nya.
 
-## Screenshots
+## Screenshot
 
-<!-- Save screenshots to docs/screenshots/ with the file names below. Use dummy patients only, never real patient data. -->
+<!-- Simpan screenshot di docs/screenshots/ dengan nama file di bawah. Pakai data pasien dummy saja, jangan data pasien asli. -->
 
 | Login | Dashboard |
 | --- | --- |
-| ![Login page with email and password fields](docs/screenshots/login.png) | ![Dashboard with portion summary for the current meal period and delivery status](docs/screenshots/dashboard.png) |
-| **Patient list** | **Patient form** |
-| ![Patient list with room filter and delivery status per patient](docs/screenshots/patient-list.png) | ![Patient diet form with room, diet type, allergies and food form](docs/screenshots/patient-form.png) |
-| **Patient detail** | **Print labels** |
-| ![Patient detail with diet info and diet change history](docs/screenshots/patient-detail.png) | ![Bulk meal labels with QR codes ready to print](docs/screenshots/print-labels.png) |
+| ![Halaman login dengan field email dan password](docs/screenshots/login.png) | ![Dashboard dengan rekap porsi sesi makan saat ini dan status pengantaran](docs/screenshots/dashboard.png) |
+| **Daftar pasien** | **Form pasien** |
+| ![Daftar pasien dengan filter ruangan dan status pengantaran tiap pasien](docs/screenshots/patient-list.png) | ![Form diet pasien berisi ruangan, jenis diet, alergi, dan bentuk makanan](docs/screenshots/patient-form.png) |
+| **Detail pasien** | **Cetak label** |
+| ![Detail pasien dengan info diet dan riwayat perubahan diet](docs/screenshots/patient-detail.png) | ![Label makanan massal dengan QR code siap cetak](docs/screenshots/print-labels.png) |
 | **Scan** | **Analytics** |
-| ![QR scanner confirming a meal delivery](docs/screenshots/scan.png) | ![Distribution snapshots per meal period and the last 7 days](docs/screenshots/analytics.png) |
-| **Admin: users** | **Admin: meal cut-off** |
-| ![User list with role assignment](docs/screenshots/admin-users.png) | ![Meal cut-off settings for Pagi, Siang and Sore](docs/screenshots/admin-meal-cutoff.png) |
-| **Mobile dashboard** | **Mobile scan** |
-| <img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard on a 390px-wide phone" width="260"> | <img src="docs/screenshots/mobile-scan.png" alt="QR scanner on a 390px-wide phone" width="260"> |
+| ![Scanner QR untuk konfirmasi pengantaran makanan](docs/screenshots/scan.png) | ![Snapshot distribusi per sesi makan dan 7 hari terakhir](docs/screenshots/analytics.png) |
+| **Admin: user** | **Admin: cut-off makan** |
+| ![Daftar user dengan pengaturan role](docs/screenshots/admin-users.png) | ![Pengaturan cut-off untuk sesi Pagi, Siang, dan Sore](docs/screenshots/admin-meal-cutoff.png) |
+| **Dashboard (mobile)** | **Scan (mobile)** |
+| <img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard di layar HP lebar 390px" width="260"> | <img src="docs/screenshots/mobile-scan.png" alt="Scanner QR di layar HP lebar 390px" width="260"> |
 
-## Features
+## Fitur
 
-| Area | What you can do |
+| Area | Yang bisa dilakukan |
 | --- | --- |
-| **Patients** | Add and edit a patient's diet (room, diet type, allergies, food form, meal frequency); unique medical record number (No. RM); full diet change history; close (delete) a patient. |
-| **Labels** | Print a meal label with a QR code for one patient or many at once (`/patients/print-labels`). |
-| **Scan** | Scan a label's QR code with the camera and mark the meal as delivered or not distributed. |
-| **Dashboard** | Live portion summary for the current meal period (Pagi / Siang / Sore), delivery status per patient, and a bell for urgent requests. |
-| **Analytics** | Today's distribution snapshots per meal period plus the last 7 days. |
-| **Admin** | Manage users and roles, edit meal cut-off times, and set how long an urgent request stays flagged. |
+| **Pasien** | Tambah dan edit diet pasien (ruangan, jenis diet, alergi, bentuk makanan, frekuensi makan); No. RM unik; riwayat lengkap perubahan diet; close (hapus) pasien. |
+| **Label** | Cetak label makanan dengan QR code untuk satu pasien atau banyak sekaligus (`/patients/print-labels`). |
+| **Scan** | Pindai QR code label pakai kamera, lalu tandai makanan sudah diantar atau tidak dibagikan. |
+| **Dashboard** | Rekap porsi real-time untuk sesi makan saat ini (Pagi / Siang / Sore), status pengantaran tiap pasien, dan notifikasi untuk permintaan mendesak. |
+| **Analytics** | Snapshot distribusi hari ini per sesi makan, plus 7 hari terakhir. |
+| **Admin** | Kelola user dan role, atur jam cut-off makan, dan atur berapa lama permintaan mendesak tetap ditandai. |
 
-Shared across the app: installable PWA with an offline page, mobile-first layout, and all times in WIB (`Asia/Jakarta`), whatever timezone the server runs in.
+Berlaku di seluruh app: bisa di-install sebagai PWA dengan halaman offline, layout mobile-first, dan semua waktu memakai WIB (`Asia/Jakarta`) apa pun timezone server-nya.
 
-## Roles
+## Role
 
-| Role | Access |
+| Role | Akses |
 | --- | --- |
-| Perawat | Add and edit patient diets, view diet history. No dashboard. |
-| Ahli Gizi | Add and edit patient diets, view diet history and the dashboard. |
-| Bagian Produksi | View the dashboard, print labels and QR codes (single or bulk). |
-| Bagian Distribusi | View the dashboard, scan QR codes and confirm delivery. |
-| Admin | Everything above, plus closing patients and managing users and settings. |
+| Perawat | Tambah dan edit diet pasien, lihat riwayat diet. Tidak bisa akses dashboard. |
+| Ahli Gizi | Tambah dan edit diet pasien, lihat riwayat diet dan dashboard. |
+| Bagian Produksi | Lihat dashboard, cetak label dan QR code (satuan atau massal). |
+| Bagian Distribusi | Lihat dashboard, scan QR code dan konfirmasi pengantaran. |
+| Admin | Semua akses di atas, plus close pasien serta kelola user dan pengaturan. |
 
-Permission checks are pure functions in `src/utils/roles.ts`, used by both pages and the nav. The same rules are enforced in the database with Row Level Security (`supabase/migrations/0007_rbac_roles.sql`).
+Pengecekan izin ditulis sebagai fungsi murni di `src/utils/roles.ts`, dipakai oleh halaman maupun navigasi. Aturan yang sama juga diterapkan di database lewat Row Level Security (`supabase/migrations/0007_rbac_roles.sql`).
 
 ## Tech stack
 
-| Tool | Version |
+| Tool | Versi |
 | --- | --- |
-| Next.js (App Router, webpack build) | 16.2 |
+| Next.js (App Router, build pakai webpack) | 16.2 |
 | React | 19.2 |
 | TypeScript | 5 |
-| Tailwind CSS (tokens in `src/app/globals.css` `@theme`) | 4 |
-| Radix UI primitives, shadcn-style (`src/components/ui/`) | 1.6 |
+| Tailwind CSS (token di `src/app/globals.css` `@theme`) | 4 |
+| Radix UI primitives, gaya shadcn (`src/components/ui/`) | 1.6 |
 | Supabase (Postgres, Auth, RLS) | `@supabase/ssr` 0.12 |
 | Serwist (service worker) | 9.5 |
 | `@yudiel/react-qr-scanner` / `qrcode` | 2.6 / 1.5 |
 | Vitest | 5 |
 | Yarn | 1.22 |
 
-Icons are Material Symbols Outlined, self-hosted from `public/fonts/` and rendered through `src/components/Icon`.
+Icon memakai Material Symbols Outlined yang di-host sendiri dari `public/fonts/` dan dirender lewat `src/components/Icon`.
 
-## Getting started
+## Memulai
 
-**Prerequisites:** Node.js 22.12+ (required by Vitest 5), Yarn 1.22, and a Supabase project.
+**Prasyarat:** Node.js 22.12+ (dibutuhkan Vitest 5), Yarn 1.22, dan satu project Supabase.
 
 ```bash
 yarn install
 cp .env.example .env.local
 ```
 
-Fill in `.env.local`:
+Isi `.env.local`:
 
-| Variable | Where to find it | Used for |
+| Variabel | Ambil dari | Dipakai untuk |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API | Supabase client |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API | Supabase client |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → `service_role` | Admin "Tambah User" and the cron job. Server-only, bypasses RLS. |
-| `CRON_SECRET` | Any random string | Auth for `/api/cron/meal-cutoff`. Can stay empty locally. |
-| `SUPABASE_DB_URL` | Supabase → Settings → Database → Connection pooler | Running migrations locally only. Never set it in production. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API | Client Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API | Client Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → `service_role` | Fitur admin "Tambah User" dan cron job. Khusus server, bypass RLS. |
+| `CRON_SECRET` | String acak bebas | Autentikasi `/api/cron/meal-cutoff`. Boleh kosong di lokal. |
+| `SUPABASE_DB_URL` | Supabase → Settings → Database → Connection pooler | Hanya untuk menjalankan migration di lokal. Jangan dipasang di production. |
 
-Then set up the database:
+Lalu siapkan database:
 
-1. Run every file in `supabase/migrations/` **in numeric order**, in the Supabase SQL Editor or with `psql "$SUPABASE_DB_URL"`. The app does not run migrations itself.
-2. Create the first admin: Supabase → Authentication → Users → Add User (tick Auto Confirm), then:
+1. Jalankan semua file di `supabase/migrations/` **sesuai urutan nomor**, lewat Supabase SQL Editor atau `psql "$SUPABASE_DB_URL"`. App tidak menjalankan migration sendiri.
+2. Buat admin pertama: Supabase → Authentication → Users → Add User (centang Auto Confirm), lalu:
 
    ```sql
-   update public.profiles set role = 'admin' where email = 'you@example.com';
+   update public.profiles set role = 'admin' where email = 'kamu@example.com';
    ```
 
-   Every other account can then be created and given a role from `/admin/users`.
+   Akun lain bisa dibuat dan diberi role dari `/admin/users`.
 
 ```bash
 yarn dev
 ```
 
-Open **<http://localhost:3002>**.
+Buka **<http://localhost:3002>**.
 
 ## Scripts
 
-| Command | What it does |
+| Command | Fungsi |
 | --- | --- |
-| `yarn dev` | Dev server on port 3002 (webpack). |
-| `yarn build` | Production build (webpack). |
-| `yarn start` | Serves the build on port 3002. |
+| `yarn dev` | Dev server di port 3002 (webpack). |
+| `yarn build` | Build production (webpack). |
+| `yarn start` | Menjalankan hasil build di port 3002. |
 | `yarn lint` | ESLint. |
-| `yarn test` | Runs the unit tests once (Vitest). |
+| `yarn test` | Menjalankan unit test sekali (Vitest). |
 
-## Architecture
+## Arsitektur
 
 ```mermaid
 flowchart LR
-  Browser["Browser / PWA"] --> Proxy["src/proxy.ts<br/>session + login redirect"]
+  Browser["Browser / PWA"] --> Proxy["src/proxy.ts<br/>session + redirect login"]
   Proxy --> Pages["Server Components<br/>src/app/(app)"]
   Pages --> Actions["Server Actions<br/>actions.ts"]
   Pages --> Supabase[(Supabase<br/>Postgres + Auth + RLS)]
@@ -125,51 +125,51 @@ flowchart LR
 
 ```text
 src/
-  app/(app)/        screens behind login: dashboard, patients, scan, analytics, admin
-  app/login/        login page
-  app/api/cron/     meal cut-off job endpoint
-  app/sw.ts         Serwist service worker
-  components/       feature components, one folder each; ui/ holds the Radix primitives
-  config/           meal cut-off defaults, meal period labels, app timezone
-  constants/        master data (rooms, diets, allergies, delivery statuses), not hardcoded in forms
-  libs/supabase/    browser/server/admin clients, session refresh, current profile
-  libs/meal-cutoff/ the scheduled cut-off job
-  utils/            pure helpers: roles, meal period, patient QR payload
-  types/            shared types
-  proxy.ts          request proxy (Next 16's replacement for middleware)
-supabase/migrations/  schema, numbered and append-only
+  app/(app)/        halaman yang butuh login: dashboard, patients, scan, analytics, admin
+  app/login/        halaman login
+  app/api/cron/     endpoint job cut-off makan
+  app/sw.ts         service worker Serwist
+  components/       komponen fitur, satu folder per komponen; ui/ berisi Radix primitives
+  config/           default cut-off makan, label sesi makan, timezone app
+  constants/        master data (ruangan, diet, alergi, status pengantaran), bukan hardcode di form
+  libs/supabase/    client browser/server/admin, refresh session, profil user aktif
+  libs/meal-cutoff/ job cut-off terjadwal
+  utils/            helper murni: role, sesi makan, payload QR pasien
+  types/            type bersama
+  proxy.ts          request proxy (pengganti middleware di Next 16)
+supabase/migrations/  schema, bernomor dan append-only
 ```
 
-### Meal periods and cut-offs
+### Sesi makan dan cut-off
 
-The day has three meal periods: **Pagi**, **Siang** and **Sore**. Each one has a data cut-off, a distribution window and an evaluation cut-off, stored in `meal_cutoffs` and editable at `/admin/meal-cutoff`.
+Satu hari dibagi menjadi tiga sesi makan: **Pagi**, **Siang**, dan **Sore**. Tiap sesi punya jam cut-off data, jendela distribusi, dan jam cut-off evaluasi. Semuanya disimpan di tabel `meal_cutoffs` dan bisa diubah di `/admin/meal-cutoff`.
 
-`src/libs/meal-cutoff/run-cutoff-job.ts` runs on a schedule and, for each period:
+`src/libs/meal-cutoff/run-cutoff-job.ts` berjalan terjadwal, dan untuk tiap sesi:
 
-1. **Locks the summary** once the data cut-off passes (a row in `meal_period_locks`). Patient data stays editable; later edits just count toward the next period.
-2. **Takes a distribution snapshot** once the evaluation cut-off passes (a row in `distribution_snapshots`), which the Analytics page reads.
+1. **Mengunci rekap** setelah jam cut-off data lewat (baris baru di `meal_period_locks`). Data pasien tetap bisa diedit; perubahan setelahnya masuk ke rekap sesi berikutnya.
+2. **Mengambil snapshot distribusi** setelah jam cut-off evaluasi lewat (baris baru di `distribution_snapshots`), yang dibaca oleh halaman Analytics.
 
-Every write first checks whether today's row already exists, so the job can run more often than the cut-offs without double-locking. It still fires up to 20 minutes late (`CUTOFF_GRACE_MINUTES`) if a run is missed.
+Setiap penulisan dicek dulu apakah baris hari ini sudah ada, jadi job aman dijalankan lebih sering dari jadwal cut-off tanpa mengunci dua kali. Kalau ada run yang terlewat, job masih bisa jalan hingga 20 menit setelah cut-off (`CUTOFF_GRACE_MINUTES`).
 
-## Key decisions
+## Keputusan teknis
 
-- **Every screen requires login.** The earlier guest access was removed when roles were added. `src/proxy.ts` redirects anyone without a session to `/login`, except `/api/cron/*`, which checks `CRON_SECRET` itself.
-- **Roles are checked twice.** Pages and the nav use `src/utils/roles.ts`; the database repeats the rules with RLS, so a direct API call can't get around the UI.
-- **The service role key stays on the server.** Only `src/libs/supabase/admin.ts` uses it, for creating users and for the cron job. It never gets a `NEXT_PUBLIC_` prefix.
-- **Webpack instead of Turbopack.** Serwist doesn't fully support Turbopack (the Next 16 default) yet, so `dev` and `build` pass `--webpack`. Don't remove that flag from the build command on Vercel.
-- **Master data lives in `src/constants/`.** Rooms, diet types, allergies and delivery statuses come from one place, and the database mirrors the same options with `CHECK` constraints (`0006_patient_master_data.sql`).
-- **Migrations are append-only.** Never edit a migration that has already run; add a new numbered file instead.
+- **Semua halaman wajib login.** Akses tamu yang dulu ada sudah dihapus sejak role ditambahkan. `src/proxy.ts` mengarahkan siapa pun tanpa session ke `/login`, kecuali `/api/cron/*` yang mengecek `CRON_SECRET` sendiri.
+- **Role dicek dua kali.** Halaman dan navigasi memakai `src/utils/roles.ts`; database mengulang aturan yang sama lewat RLS, jadi panggilan API langsung tidak bisa melewati UI.
+- **Service role key hanya di server.** Hanya `src/libs/supabase/admin.ts` yang memakainya, untuk membuat user dan untuk cron job. Key ini tidak pernah diberi prefix `NEXT_PUBLIC_`.
+- **Webpack, bukan Turbopack.** Serwist belum sepenuhnya mendukung Turbopack (default Next 16), jadi `dev` dan `build` memakai `--webpack`. Jangan hapus flag itu dari build command di Vercel.
+- **Master data ada di `src/constants/`.** Ruangan, jenis diet, alergi, dan status pengantaran diambil dari satu tempat, dan database mencerminkan pilihan yang sama lewat constraint `CHECK` (`0006_patient_master_data.sql`).
+- **Migration bersifat append-only.** Jangan edit migration yang sudah dijalankan; buat file baru dengan nomor berikutnya.
 
 ## Deployment
 
-The app runs on Vercel, with the same Supabase project used locally (there's no separate dev database). Set these env vars in Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `CRON_SECRET`. Don't add `SUPABASE_DB_URL`.
+App berjalan di Vercel dan memakai project Supabase yang sama dengan lokal (tidak ada database dev terpisah). Pasang env var berikut di Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, dan `CRON_SECRET`. Jangan tambahkan `SUPABASE_DB_URL`.
 
-- **Run all migrations before deploying.** The app does not apply them.
-- **Keep-alive:** `vercel.json` calls `/api/cron/meal-cutoff` once a day (20:00 UTC / 03:00 WIB). It reads the database, so the free Supabase project isn't paused for inactivity. A project that is already paused still has to be restored from the Supabase dashboard.
-- **Cut-off schedule:** Vercel Hobby allows only one cron run per day, which isn't enough for the cut-offs. Use an external scheduler such as [cron-job.org](https://cron-job.org) to send `GET https://<domain>/api/cron/meal-cutoff` with the header `Authorization: Bearer <CRON_SECRET>` every 15 minutes.
-- **HTTPS is required** for the PWA install prompt and the camera scanner. Vercel provides it.
+- **Jalankan semua migration sebelum deploy.** App tidak menjalankannya otomatis.
+- **Keep-alive:** `vercel.json` memanggil `/api/cron/meal-cutoff` sekali sehari (20:00 UTC / 03:00 WIB). Route itu membaca database, jadi project Supabase gratis tidak di-pause karena dianggap tidak aktif. Project yang sudah terlanjur di-pause tetap harus di-restore manual dari dashboard Supabase.
+- **Jadwal cut-off:** Vercel Hobby hanya mengizinkan cron sekali sehari, dan itu tidak cukup untuk cut-off. Pakai scheduler eksternal seperti [cron-job.org](https://cron-job.org) untuk mengirim `GET https://<domain>/api/cron/meal-cutoff` dengan header `Authorization: Bearer <CRON_SECRET>` setiap 15 menit.
+- **HTTPS wajib** untuk prompt install PWA dan scanner kamera. Vercel sudah menyediakannya.
 
-Step-by-step instructions (Vercel CLI or GitHub import) are in [DEPLOY.md](DEPLOY.md).
+Langkah lengkap (Vercel CLI atau import dari GitHub) ada di [DEPLOY.md](DEPLOY.md).
 
 ## Testing
 
@@ -177,16 +177,16 @@ Step-by-step instructions (Vercel CLI or GitHub import) are in [DEPLOY.md](DEPLO
 yarn test
 ```
 
-12 tests in 1 file, all passing. They cover the pure meal-period logic (`src/utils/meal-period.test.ts`), such as which period a timestamp belongs to in WIB.
+12 test dalam 1 file, semuanya lulus. Test-nya mencakup logika sesi makan (`src/utils/meal-period.test.ts`), misalnya menentukan sebuah timestamp masuk ke sesi mana dalam WIB.
 
-## Known limitations
+## Keterbatasan
 
-- **Free-tier scheduling.** The cut-off job relies on an external scheduler; if it stops, summaries aren't locked and snapshots aren't taken.
-- **Closing a patient is a hard delete.** It's admin-only, and the data can't be recovered.
-- **Small test suite.** Only the meal-period helpers have tests; roles, the cut-off job and the forms don't yet.
+- **Penjadwalan tier gratis.** Job cut-off bergantung pada scheduler eksternal; kalau scheduler berhenti, rekap tidak terkunci dan snapshot tidak diambil.
+- **Close pasien adalah hard delete.** Hanya admin yang bisa, dan datanya tidak bisa dikembalikan.
+- **Test masih sedikit.** Baru helper sesi makan yang punya test; role, job cut-off, dan form belum.
 
-## Future improvements
+## Rencana pengembangan
 
-- Unit tests for `src/utils/roles.ts` and `run-cutoff-job.ts`.
-- End-to-end tests (e.g. Playwright) for patient input → label printing → scanning.
-- Move the cut-off schedule to Vercel Cron if the project upgrades to Pro.
+- Unit test untuk `src/utils/roles.ts` dan `run-cutoff-job.ts`.
+- End-to-end test (misalnya Playwright) untuk alur input pasien → cetak label → scan.
+- Pindahkan jadwal cut-off ke Vercel Cron kalau project upgrade ke Pro.
